@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Física Conteúdo</title>
+    <link rel="icon" type="image/png" href="157141.png">
+    <style>
+        /* Reset de estilos para limpar margens padrões */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary-color: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-color: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+            --success-color: #16a34a;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        /* Garante que o rodapé fique sempre embaixo se a página tiver pouco conteúdo */
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            background-color: #f8f9fa;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        /* Cabeçalho e Navbar ocupando toda a largura */
+        header {
+            width: 100%;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background-color: #0354b1e7;
+        }
+
+        header::before {
+            background-image:url(fundo\ header.png);
+            background-size: 30%;
+            position: absolute;
+            z-index: -1;
+            content: "";
+            inset: 0;
+            opacity: 40%;
+        }
+
+        nav {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #07315e;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo img{
+            height: auto;
+            width: 40px; /* Definido tamanho fixo proporcional para o logotipo */
+        }
+
+        /* Container que agrupa a navegação padrão e o botão da barra lateral */
+        .nav-container {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+        }
+
+        .nav-links {
+            list-style: none;
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #555;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: #007bff;
+        }
+
+        /* Botão para acionar a Sidebar */
+        .btn-sidebar-toggle {
+            background-color: #007bff;
+            color: #ffffff;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-sidebar-toggle:hover {
+            background-color: #0056b3;
+        }
+
+        /* Estrutura Base da Sidebar */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            right: -300px; /* Oculta a barra para fora da tela inicial à direita */
+            width: 300px;
+            height: 100%;
+            background-color: #ffffff;
+            box-shadow: -4px 0 15px rgba(0, 0, 0, 0.1);
+            z-index: 2000;
+            transition: right 0.3s ease-in-out;
+            padding: 30px 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        /* Classe utilitária engatada via JS para deslizar e abrir a barra */
+        .sidebar.active {
+            right: 0;
+        }
+
+        /* Cabeçalho interno da Sidebar */
+        .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #dee2e6;
+            padding-bottom: 15px;
+        }
+
+        .sidebar-header h3 {
+            font-size: 1.2rem;
+            color: #222;
+        }
+
+        /* Botão de Fechar interno */
+        .btn-sidebar-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #666;
+            cursor: pointer;
+            transition: color 0.2s;
+            line-height: 1;
+        }
+
+        .btn-sidebar-close:hover {
+            color: #dc3545;
+        }
+
+        /* Lista de links dedicados da Sidebar */
+        .sidebar-links {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .sidebar-links a {
+            text-decoration: none;
+            color: #495057;
+            font-size: 1.05rem;
+            font-weight: 500;
+            padding: 10px 12px;
+            border-radius: 6px;
+            display: block;
+            transition: background-color 0.2s, color 0.2s;
+        }
+
+        .sidebar-links a:hover {
+            background-color: #f1f3f5;
+            color: #007bff;
+        }
+
+        /* Fundo escurecido atrás da página quando a Sidebar estiver ativa */
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.4);
+            z-index: 1500;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        .sidebar-overlay.active {
+            display: block;
+            opacity: 1;
+        }
+
+        /* Corpo principal da página */
+        main {
+            flex: 1;
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .content-box {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        h1 {
+            margin-bottom: 15px;
+            color: #222;
+        }
+
+        p {
+            line-height: 1.6;
+            color: #666;
+        }
+
+        .questão-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        .numero-questao {
+            font-weight: bold;
+            color: var(--primary-color);
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .enunciado {
+            margin-bottom: 1rem;
+            font-weight: 500;
+        }
+
+        .btn-resposta {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.6rem 1.2rem;
+            font-size: 0.95rem;
+            font-weight: 500;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+
+        .btn-resposta:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn-resposta:active {
+            transform: scale(0.98);
+        }
+
+        .resposta-container {
+            display: none; /* Escondido por padrão */
+            margin-top: 1.2rem;
+            padding-top: 1.2rem;
+            border-top: 2px dashed var(--border-color);
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .gabarito {
+            color: var(--success-color);
+            font-weight: bold;
+            font-size: 1.05rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .resolucao {
+            color: var(--text-secondary);
+            background-color: #f1f5f9;
+            padding: 1rem;
+            border-radius: 6px;
+            margin: 0;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Rodapé Preto com assinatura alinhada */
+        footer {
+            background-color: #000000;
+            color: #ffffff;
+            width: 100%;
+            padding: 20px 0;
+            margin-top: auto;
+            position: relative;
+            z-index: 900;
+        }
+
+        .footer-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .copyright {
+            font-size: 0.9rem;
+            color: #aaa;
+        }
+
+        .signature {
+            font-size: 0.9rem;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- CABEÇALHO (HEADER) -->
+    <header>
+        <nav>
+            <div class="logo">
+                <img src="width_200.png" alt="">
+                Física Conteúdo
+            </div>
+            <div class="nav-container">
+                <!-- Botão que abre a barra lateral -->
+                <button class="btn-sidebar-toggle" onclick="toggleSidebar(true)">Menu ☰</button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- BARRA LATERAL (SIDEBAR) -->
+    <div class="sidebar" id="sidebarMenu">
+        <div class="sidebar-header">
+            <h3>Navegação</h3>
+            <button class="btn-sidebar-close" onclick="toggleSidebar(false)">&times;</button>
+        </div>
+        <ul class="sidebar-links">
+            <li><a href="index.html">Início</a></li>
+                    <li><a href="simulacao.html">Simulações</a></li>
+                    <li><a href="main-atividades.html">Atividades</a></li>
+                    <li><a href="#">Sobre</a></li>
+        </ul>
+    </div>
+
+    <!-- Cortina de fundo para fechar ao clicar fora da barra -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar(false)"></div>
+
+    <!-- CORPO (MAIN) -->
+    <main>
+        <div class="container">
+            <h1>Exercícios Newton</h1>
+
+        <!-- Questão 1 -->
+        <div class="questão-card">
+            <div class="numero-questao">Questão 1</div>
+            <p class="enunciado">Se um triângulo retângulo possui catetos medindo 3 cm e 4 cm, qual é a medida da sua hipotenusa?</p>
+            
+            <button class="btn-resposta" onclick="alternarResposta(this)">Ver resposta</button>
+            
+            <div class="resposta-container">
+                <div class="gabarito">Resposta: 5 cm</div>
+                <div class="resolucao">
+                    <strong>Resolução:</strong><br>
+                    Utilizamos o Teorema de Pitágoras: a² = b² + c².<br>
+                    a² = 3² + 4²<br>
+                    a² = 9 + 16<br>
+                    a² = 25<br>
+                    a = √25 = 5 cm.
+                </div>
+            </div>
+        </div>
+
+        <!-- Questão 2 -->
+        <div class="questão-card">
+            <div class="numero-questao">Questão 2</div>
+            <p class="enunciado">Qual é a capital da França?</p>
+            
+            <button class="btn-resposta" onclick="alternarResposta(this)">Ver resposta</button>
+            
+            <div class="resposta-container">
+                <div class="gabarito">Resposta: Paris</div>
+                <div class="resolucao">
+                    <strong>Resolução:</strong><br>
+                    Paris é a maior cidade e a capital político-administrativa da França, situada às margens do rio Sena.
+                </div>
+            </div>
+        </div>
+    </div>
+    </main>
+
+    <!-- RODAPÉ (FOOTER) -->
+    <footer>
+        <div class="footer-container">
+            <div class="copyright">&copy; 2026 Todos os direitos reservados.</div>
+            <div class="signature">Carlos Eduardo S. do Nascimento</div>
+        </div>
+    </footer>
+
+    <!-- Lógica JavaScript de Alternância da Sidebar -->
+    <script>
+        function toggleSidebar(open) {
+            const sidebar = document.getElementById('sidebarMenu');
+            const overlay = document.getElementById('sidebarOverlay');
+            
+            if (open) {
+                sidebar.classList.add('active');
+                overlay.classList.add('active');
+            } else {
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+            }
+        }
+
+        function alternarResposta(botao) {
+            // Encontra o container de resposta que está logo após o botão clicado
+            const respostaContainer = botao.nextElementSibling;
+            
+            // Verifica se a resposta está visível
+            if (respostaContainer.style.display === "block") {
+                respostaContainer.style.display = "none";
+                botao.textContent = "Ver resposta";
+                botao.style.backgroundColor = ""; // Volta para a cor padrão do CSS
+            } else {
+                respostaContainer.style.display = "block";
+                botao.textContent = "Mostrar menos";
+                botao.style.backgroundColor = "#64748b"; // Muda a cor para indicar que pode fechar
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulação M.R.U.V. - Física Conteúdo</title>
+    <style>
+        /* Reset de estilos */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            background-color: #f8f9fa;
+            color: #333;
+        }
+
+        /* Cabeçalho e Navbar ocupando toda a largura */
+        header {
+            width: 100%;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background-color: #0354b1e7;
+        }
+
+        header::before {
+            background-image:url(fundo\ header.png);
+            background-size: 30%;
+            position: absolute;
+            z-index: -1;
+            content: "";
+            inset: 0;
+            opacity: 40%;
+        }
+
+        nav {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #07315e;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo img{
+            height: auto;
+            width: 40px; /* Definido tamanho fixo proporcional para o logotipo */
+        }
+
+        /* Container que agrupa a navegação padrão e o botão da barra lateral */
+        .nav-container {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+        }
+
+        .nav-links {
+            list-style: none;
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #555;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: #007bff;
+        }
+
+        /* Botão para acionar a Sidebar */
+        .btn-sidebar-toggle {
+            background-color: #007bff;
+            color: #ffffff;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-sidebar-toggle:hover {
+            background-color: #0056b3;
+        }
+
+        /* Estrutura Base da Sidebar */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            right: -300px; /* Oculta a barra para fora da tela inicial à direita */
+            width: 300px;
+            height: 100%;
+            background-color: #ffffff;
+            box-shadow: -4px 0 15px rgba(0, 0, 0, 0.1);
+            z-index: 2000;
+            transition: right 0.3s ease-in-out;
+            padding: 30px 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        /* Classe utilitária engatada via JS para deslizar e abrir a barra */
+        .sidebar.active {
+            right: 0;
+        }
+
+        /* Cabeçalho interno da Sidebar */
+        .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #dee2e6;
+            padding-bottom: 15px;
+        }
+
+        .sidebar-header h3 {
+            font-size: 1.2rem;
+            color: #222;
+        }
+
+        /* Botão de Fechar interno */
+        .btn-sidebar-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #666;
+            cursor: pointer;
+            transition: color 0.2s;
+            line-height: 1;
+        }
+
+        .btn-sidebar-close:hover {
+            color: #dc3545;
+        }
+
+        /* Lista de links dedicados da Sidebar */
+        .sidebar-links {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .sidebar-links a {
+            text-decoration: none;
+            color: #495057;
+            font-size: 1.05rem;
+            font-weight: 500;
+            padding: 10px 12px;
+            border-radius: 6px;
+            display: block;
+            transition: background-color 0.2s, color 0.2s;
+        }
+
+        .sidebar-links a:hover {
+            background-color: #f1f3f5;
+            color: #007bff;
+        }
+
+        /* Fundo escurecido atrás da página quando a Sidebar estiver ativa */
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.4);
+            z-index: 1500;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        .sidebar-overlay.active {
+            display: block;
+            opacity: 1;
+        }
+
+        /* Corpo principal */
+        main {
+            flex: 1;
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+
+        .page-header {
+            margin-bottom: 25px;
+        }
+
+        .page-header h1 {
+            font-size: 1.8rem;
+            color: #222;
+        }
+
+        /* Container do Simulador */
+        .simulator-container {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            gap: 25px;
+        }
+
+        @media (max-width: 900px) {
+            .simulator-container { grid-template-columns: 1fr; }
+        }
+
+        /* Área Visual do Espaço (Animação) */
+        .space-track {
+            background: linear-gradient(90deg, #0B1D3A 0%, #1B365D 100%);
+            height: 200px;
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden;
+            border: 3px solid #0d2547;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+        }
+
+        /* Estrelas de fundo */
+        .stars {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-image: radial-gradient(white 1px, transparent 0), radial-gradient(white 1px, transparent 0);
+            background-size: 40px 40px, 60px 60px;
+            background-position: 0 0, 20px 30px;
+            opacity: 0.3;
+        }
+
+        /* O Foguete Animado com efeito de fogo ajustável */
+        .rocket-wrapper {
+            position: absolute;
+            bottom: 45px;
+            left: 0px;
+            display: flex;
+            align-items: center;
+            transition: left 0.1s linear;
+        }
+
+        .fire {
+            font-size: 1.8rem;
+            margin-right: -10px;
+            opacity: 0;
+            transition: opacity 0.2s;
+            transform: rotate(90deg);
+        }
+
+        .rocket {
+            font-size: 3.5rem;
+            filter: drop-shadow(0 0 10px rgba(255, 165, 0, 0.6));
+            user-select: none;
+        }
+
+        /* Linha de Medição de Distância (Régua) */
+        .ruler {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 35px;
+            background: rgba(255, 255, 255, 0.15);
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 10px 0 10px;
+            border-top: 2px dashed rgba(255, 255, 255, 0.3);
+            color: #fff;
+            font-size: 0.8rem;
+            font-family: monospace;
+        }
+
+        /* Painel Dinâmico de Fórmulas Matemáticas */
+        .formula-card {
+            background: #f1f3f5;
+            border-left: 5px solid #007bff;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+
+        .formula-title {
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: #666;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .math-expr {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: #111;
+        }
+
+        .math-expr span {
+            color: #007bff;
+            transition: all 0.1s;
+        }
+
+        /* Painel de Controle Lateral */
+        .controls-panel {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .control-group label {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #495057;
+        }
+
+        .control-group input[type="range"] {
+            width: 100%;
+            cursor: pointer;
+        }
+
+        .control-val {
+            font-weight: bold;
+            color: #007bff;
+            font-family: monospace;
+        }
+
+        /* Botões de Simulação */
+        .btn-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .btn {
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+            text-align: center;
+        }
+
+        .btn-start { background: #28a745; color: white; }
+        .btn-start:hover { background: #218838; }
+        .btn-reset { background: #dc3545; color: white; }
+        .btn-reset:hover { background: #c82333; }
+
+        /* Rodapé Negro */
+        footer {
+            background-color: #000000;
+            color: #ffffff;
+            width: 100%;
+            padding: 20px 0;
+            margin-top: auto;
+        }
+
+        .footer-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .copyright {
+            font-size: 0.9rem;
+            color: #aaa;
+        }
+
+        .signature {
+            font-size: 0.9rem;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- CABEÇALHO -->
+    <header>
+        <nav>
+            <div class="logo">
+                <img src="width_200.png" alt="">
+                Física Conteúdo
+            </div>
+            <div class="nav-container">
+                <!-- Botão que abre a barra lateral -->
+                <button class="btn-sidebar-toggle" onclick="toggleSidebar(true)">Menu ☰</button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- BARRA LATERAL (SIDEBAR) -->
+    <div class="sidebar" id="sidebarMenu">
+        <div class="sidebar-header">
+            <h3>Navegação</h3>
+            <button class="btn-sidebar-close" onclick="toggleSidebar(false)">&times;</button>
+        </div>
+        <ul class="sidebar-links">
+            <li><a href="index.html">Início</a></li>
+                    <li><a href="simulacao.html">Simulações</a></li>
+                    <li><a href="main-atividades.html">Atividades</a></li>
+                    <li><a href="#">Sobre</a></li>
+        </ul>
+    </div>
+
+    <!-- Cortina de fundo para fechar ao clicar fora da barra -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar(false)"></div>
+
+    <!-- CORPO -->
+    <main>
+        <div class="page-header">
+            <h1>Laboratório Virtual: Movimento Uniformemente Variado (M.R.U.V.)</h1>
+        </div>
+
+        <div class="simulator-container">
+            
+            <!-- Coluna da Esquerda: Animação e Fórmulas -->
+            <div>
+                <!-- Equação da Posição -->
+                <div class="formula-card">
+                    <div class="formula-title">Função Horária da Posição (Sorvetão)</div>
+                    <div class="math-expr">
+                        S = S₀ + v₀·t + (a·t²)/2 &nbsp;⇒&nbsp; 
+                        <span id="f-posicao">S = 0m</span>
+                    </div>
+                </div>
+
+                <!-- Equação da Velocidade -->
+                <div class="formula-card" style="border-left-color: #e0a800;">
+                    <div class="formula-title">Função Horária da Velocidade (Vovô Ateu)</div>
+                    <div class="math-expr">
+                        v = v₀ + a · t &nbsp;⇒&nbsp; 
+                        <span id="f-velocidade" style="color:#e0a800">v = 0m/s</span>
+                    </div>
+                </div>
+
+                <!-- Painel Numérico Dinâmico -->
+                <div class="formula-card" style="border-left-color: #28a745;">
+                    <div class="formula-title">Dados em tempo real</div>
+                    <div class="math-expr" style="font-size: 1.05rem;">
+                        S₀: <span id="f-s0">0m</span> | 
+                        v₀: <span id="f-v0">0m/s</span> | 
+                        a: <span id="f-a">2m/s²</span> | 
+                        t: <span id="f-t" style="color:#17a2b8">0.0s</span>
+                    </div>
+                </div>
+
+                <!-- Pista Espacial -->
+                <div class="space-track" id="track">
+                    <div class="stars"></div>
+                    <!-- Foguete Empacotado com o Fogo -->
+                    <div class="rocket-wrapper" id="rocket-wrapper">
+                        <div class="fire" id="fire">🔥</div>
+                        <div class="rocket">🚀</div>
+                    </div>
+                    <!-- Régua métrica de fundo -->
+                    <div class="ruler">
+                        <span>0m</span>
+                        <span>100m</span>
+                        <span>200m</span>
+                        <span>300m</span>
+                        <span>400m</span>
+                        <span>500m</span>
+                    </div>                    <!-- Régua métrica de fundo -->
+                    <div class="ruler">
+                        <span>0m</span>
+                        <span>100m</span>
+                        <span>200m</span>
+                        <span>300m</span>
+                        <span>400m</span>
+                        <span>500m</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Coluna da Direita: Controles Modificáveis Manuais -->
+            <div class="controls-panel">
+                <h3 style="margin-bottom: 5px; color:#222;">Configurações</h3>
+                
+                <!-- Controle de Posição Inicial -->
+                <div class="control-group">
+                    <label>Posição Inicial (S₀): <span class="control-val" id="val-s0">0</span> m</label>
+                    <input type="range" id="input-s0" min="0" max="150" value="0">
+                </div>
+
+                <!-- Controle de Velocidade Inicial -->
+                <div class="control-group">
+                    <label>Velocidade Inicial (v₀): <span class="control-val" id="val-v0">0</span> m/s</label>
+                    <input type="range" id="input-v0" min="0" max="40" value="0">
+                </div>
+
+                <!-- Controle de Aceleração -->
+                <div class="control-group">
+                    <label>Aceleração constante (a): <span class="control-val" id="val-a">10</span> m/s²</label>
+                    <input type="range" id="input-a" min="1" max="25" value="10">
+                </div>
+
+                <!-- Botões disparadores -->
+                <div class="btn-group">
+                    <button class="btn btn-start" id="btn-play">Lançar 🚀</button>
+                    <button class="btn btn-reset" id="btn-reset">Resetar</button>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- RODAPÉ -->
+    <footer>
+        <div class="footer-container">
+            <div class="copyright">&copy; 2026 Todos os direitos reservados.</div>
+            <div class="signature">Carlos Eduardo S. do Nascimento</div>
+        </div>
+    </footer>
+
+    <!-- Lógica de Funcionamento e Integração Física em Tempo Real -->
+    <script>
+        // Elementos DOM
+        const rocketWrapper = document.getElementById('rocket-wrapper');
+        const fire = document.getElementById('fire');
+        const track = document.getElementById('track');
+        
+        // Elementos de Entrada (Sliders)
+        const inputS0 = document.getElementById('input-s0');
+        const inputV0 = document.getElementById('input-v0');
+        const inputA = document.getElementById('input-a');
+        
+        // Indicadores textuais de controle
+        const valS0 = document.getElementById('val-s0');
+        const valV0 = document.getElementById('val-v0');
+        const valA = document.getElementById('val-a');
+        
+        // Elementos das fórmulas matemáticas dinâmicas
+        const fPosicao = document.getElementById('f-posicao');
+        const fVelocidade = document.getElementById('f-velocidade');
+        const fS0 = document.getElementById('f-s0');
+        const fV0 = document.getElementById('f-v0');
+        const fA = document.getElementById('f-a');
+        const fT = document.getElementById('f-t');
+
+        const btnPlay = document.getElementById('btn-play');
+        const btnReset = document.getElementById('btn-reset');
+
+        // Variáveis físicas do MRUV
+        let s0 = 0;
+        let v0 = 0;
+        let a = 10;
+        let t = 0;
+        let animando = false;
+        let intervalId = null;
+
+        // Fator de escala pixel-para-metro dentro da largura útil da pista
+        function obterEscalaS() {
+            const larguraPista = track.clientWidth - 110; // Desconto proporcional do wrapper foguete+fogo
+            return larguraPista / 500; // Máximo da nossa régua é de 500 metros
+        }
+
+        // Atualiza os componentes matemáticos estruturais
+        function atualizarPainel() {
+            valS0.innerText = s0;
+            valV0.innerText = v0;
+            valA.innerText = a;
+            
+            fS0.innerText = s0 + "m";
+            fV0.innerText = v0 + "m/s";
+            fA.innerText = a + "m/s²";
+            fT.innerText = t.toFixed(1) + "s";
+
+            // Equações Físicas do MRUV aplicada em tempo real
+            let sAtual = s0 + (v0 * t) + (0.5 * a * (t * t));
+            let vAtual = v0 + (a * t);
+            
+            // Limitador de fim de curso físico da régua (500m)
+            if (sAtual > 500) {
+                sAtual = 500; 
+                vAtual = v0 + (a * t); // Mantém cálculo correto no limite final
+                pararSimulacao();
+            }
+
+            // Exibição e concatenação das strings das fórmulas dinâmicas
+            fPosicao.innerHTML = `S = ${s0} + ${v0}·${t.toFixed(1)} + (${a}·${t.toFixed(1)}²)/2 = <span style="color:#28a745">${Math.round(sAtual)}m</span>`;
+            fVelocidade.innerHTML = `v = ${v0} + ${a} · ${t.toFixed(1)} = <span style="color:#e0a800">${Math.round(vAtual)}m/s</span>`;
+
+            // Movimentação do elemento gráfico
+            const escala = obterEscalaS();
+            rocketWrapper.style.left = (sAtual * escala) + "px";
+        }
+
+        function iniciarSimulacao() {
+            if (animando) {
+                pararSimulacao();
+            } else {
+                animando = true;
+                btnPlay.innerText = "Pausar ⏸";
+                btnPlay.style.background = "#ffc107";
+                btnPlay.style.color = "#222";
+                fire.style.opacity = "1"; // Acende o motor 🔥
+                
+                // Incrementos estruturados a cada 100ms físicos (0.1 segundos reais)
+                intervalId = setInterval(() => {
+                    t += 0.1;
+                    atualizarPainel();
+                }, 100);
+            }
+        }
+
+        function pararSimulacao() {
+            animando = false;
+            btnPlay.innerText = "Lançar 🚀";
+            btnPlay.style.background = "#28a745";
+            btnPlay.style.color = "white";
+            fire.style.opacity = "0"; // Apaga o motor
+            clearInterval(intervalId);
+        }
+
+        function resetarSimulacao() {
+            pararSimulacao();
+            t = 0;
+            atualizarPainel();
+        }
+
+        // Capturadores dinâmicos de eventos (Sliders manuais bloqueados durante a ignição)
+        inputS0.addEventListener('input', (e) => {
+            if (!animando) {
+                s0 = parseInt(e.target.value);
+                atualizarPainel();
+            }
+        });
+
+        inputV0.addEventListener('input', (e) => {
+            if (!animando) {
+                v0 = parseInt(e.target.value);
+                atualizarPainel();
+            }
+        });
+
+        inputA.addEventListener('input', (e) => {
+            if (!animando) {
+                a = parseInt(e.target.value);
+                atualizarPainel();
+            }
+        });
+
+        btnPlay.addEventListener('click', iniciarSimulacao);
+        btnReset.addEventListener('click', resetarSimulacao);
+
+        // Ajuste fluido de responsividade de tela
+        window.addEventListener('resize', atualizarPainel);
+
+        // Execução primária estrutural
+        atualizarPainel();
+
+        function toggleSidebar(open) {
+            const sidebar = document.getElementById('sidebarMenu');
+            const overlay = document.getElementById('sidebarOverlay');
+            
+            if (open) {
+                sidebar.classList.add('active');
+                overlay.classList.add('active');
+            } else {
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+            }
+        }
+    </script>
+</body>
+</html>
+
