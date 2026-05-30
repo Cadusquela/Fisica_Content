@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Física Conteúdo</title>
+    <link rel="icon" type="image/png" href="157141.png">
+    <style>
+        /* Reset de estilos para limpar margens padrões */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary-color: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-color: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+            --success-color: #16a34a;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Garante que o rodapé fique sempre embaixo se a página tiver pouco conteúdo */
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            background-color: #f8f9fa;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        /* Cabeçalho e Navbar ocupando toda a largura */
+        header {
+            width: 100%;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background-color: #0354b1e7;
+        }
+
+        header::before {
+            background-image:url(fundo\ header.png);
+            background-size: 30%;
+            position: absolute;
+            z-index: -1;
+            content: "";
+            inset: 0;
+            opacity: 40%;
+        }
+
+        nav {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #07315e;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo img{
+            height: auto;
+            width: 40px; /* Definido tamanho fixo proporcional para o logotipo */
+        }
+
+        /* Container que agrupa a navegação padrão e o botão da barra lateral */
+        .nav-container {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+        }
+
+        .nav-links {
+            list-style: none;
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #555;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: #007bff;
+        }
+
+        /* Botão para acionar a Sidebar */
+        .btn-sidebar-toggle {
+            background-color: #007bff;
+            color: #ffffff;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-sidebar-toggle:hover {
+            background-color: #0056b3;
+        }
+
+        /* Estrutura Base da Sidebar */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            right: -300px; /* Oculta a barra para fora da tela inicial à direita */
+            width: 300px;
+            height: 100%;
+            background-color: #ffffff;
+            box-shadow: -4px 0 15px rgba(0, 0, 0, 0.1);
+            z-index: 2000;
+            transition: right 0.3s ease-in-out;
+            padding: 30px 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        /* Classe utilitária engatada via JS para deslizar e abrir a barra */
+        .sidebar.active {
+            right: 0;
+        }
+
+        /* Cabeçalho interno da Sidebar */
+        .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #dee2e6;
+            padding-bottom: 15px;
+        }
+
+        .sidebar-header h3 {
+            font-size: 1.2rem;
+            color: #222;
+        }
+
+        /* Botão de Fechar interno */
+        .btn-sidebar-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #666;
+            cursor: pointer;
+            transition: color 0.2s;
+            line-height: 1;
+        }
+
+        .btn-sidebar-close:hover {
+            color: #dc3545;
+        }
+
+        /* Lista de links dedicados da Sidebar */
+        .sidebar-links {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .sidebar-links a {
+            text-decoration: none;
+            color: #495057;
+            font-size: 1.05rem;
+            font-weight: 500;
+            padding: 10px 12px;
+            border-radius: 6px;
+            display: block;
+            transition: background-color 0.2s, color 0.2s;
+        }
+
+        .sidebar-links a:hover {
+            background-color: #f1f3f5;
+            color: #007bff;
+        }
+
+        /* Fundo escurecido atrás da página quando a Sidebar estiver ativa */
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.4);
+            z-index: 1500;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        .sidebar-overlay.active {
+            display: block;
+            opacity: 1;
+        }
+
+        /* Corpo principal da página */
+        main {
+            flex: 1;
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .content-box {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        ul{
+            margin-left: 30px;
+        }
+
+        h1 {
+            margin-bottom: 15px;
+            color: #222;
+        }
+
+        h2{
+            margin-bottom: 15px;
+            color: #0454af;
+            padding-left: 30px;
+            margin-top: 50px;
+        }
+
+        p {
+            line-height: 1.6;
+            color: #666;
+        }
+
+        a{
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .questão-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        .numero-questao {
+            font-weight: bold;
+            color: var(--primary-color);
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .enunciado {
+            margin-bottom: 1rem;
+            font-weight: 500;
+        }
+
+        .btn-resposta {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.6rem 1.2rem;
+            font-size: 0.95rem;
+            font-weight: 500;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+
+        .btn-resposta:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn-resposta:active {
+            transform: scale(0.98);
+        }
+
+        .resposta-container {
+            display: none; /* Escondido por padrão */
+            margin-top: 1.2rem;
+            padding-top: 1.2rem;
+            border-top: 2px dashed var(--border-color);
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .gabarito {
+            color: var(--success-color);
+            font-weight: bold;
+            font-size: 1.05rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .resolucao {
+            color: var(--text-secondary);
+            background-color: #f1f5f9;
+            padding: 1rem;
+            border-radius: 6px;
+            margin: 0;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Rodapé Preto com assinatura alinhada */
+        footer {
+            background-color: #000000;
+            color: #ffffff;
+            width: 100%;
+            padding: 20px 0;
+            margin-top: auto;
+            position: relative;
+            z-index: 900;
+        }
+
+        .footer-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .copyright {
+            font-size: 0.9rem;
+            color: #aaa;
+        }
+
+        .signature {
+            font-size: 0.9rem;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- CABEÇALHO (HEADER) -->
+    <header>
+        <nav>
+            <div class="logo">
+                <img src="width_200.png" alt="">
+                Física Conteúdo
+            </div>
+            <div class="nav-container">
+                <!-- Botão que abre a barra lateral -->
+                <button class="btn-sidebar-toggle" onclick="toggleSidebar(true)">Menu ☰</button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- BARRA LATERAL (SIDEBAR) -->
+    <div class="sidebar" id="sidebarMenu">
+        <div class="sidebar-header">
+            <h3>Navegação</h3>
+            <button class="btn-sidebar-close" onclick="toggleSidebar(false)">&times;</button>
+        </div>
+        <ul class="sidebar-links">
+            <li><a href="index.html">Início</a></li>
+                    <li><a href="simulacao.html">Simulações</a></li>
+                    <li><a href="main-atividades.html">Atividades</a></li>
+                    <li><a href="https://forms.gle/hc9Qkb8fZgYwz1J77">Tira Dúvidas</a></li>
+        </ul>
+    </div>
+
+    <!-- Cortina de fundo para fechar ao clicar fora da barra -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar(false)"></div>
+
+    <!-- CORPO (MAIN) -->
+    <main>
+        <div class="container">
+
+        <div class="content-box">
+            <h1>Cinemática</h1>
+            <p>A Cinemática, dentro da área de Mecânica da Física, tem como foco o estudo e descrição do movimento dos corpos independente das causas do deslocamento. Podemos classificar e comparar os movimentos através da Cinemática. O motivo que desencadeia o movimento é estudado pela Dinâmica.</p><br>
+            <br>
+            <h1>Conceitos fundamentais</h1>
+            <p>Veja a seguir alguns conceitos importantes no estudo da Cinemática.</p><br>
+            <ul>
+                <li>
+                    <strong>Referencial</strong>:
+                 ponto que determina se o objeto está em movimento ou repouso.
+                </li>
+                <li>
+                    <strong>Movimento</strong>:
+                    mudança de posição para se aproximar ou afastar do referencial.
+                </li>
+                <li>
+                    <strong>Repouso</strong>:
+                    quando a posição de um objeto não se altera em relação a um referencial.
+                </li>
+                <li>
+                    <strong>Trajetória</strong>:
+                    linha que determina as diversas posições do objeto ao decorrer do tempo.
+                </li>
+                <li>
+                    <strong>Deslocamento</strong>:
+                    distância percorrida entre o espaço inicial e final da trajetória.
+                </li>
+                <li>
+                    <strong>Ponto material</strong>:
+                    corpo cujas dimensões não interferem no estudo do movimento.
+                </li>
+                <li>
+                    <strong>Corpo extenso</strong>:
+                    corpo cujas dimensões são importantes para o entender o movimento.
+                </li>
+            </ul>
+
+            <br>
+
+            <strong>Exemplo</strong>:
+            Um rapaz dentro de um carro é tido como A e se movimenta para direita em direção ao referencial B, que corresponde a uma menina parada próximo à faixa de pedestres. <br>
+            <img src="https://static.todamateria.com.br/upload/tr/aj/trajetoriacinematica-0-cke.jpg" alt=""><br>
+            Sendo B o referencial, dizemos que A está em movimento em relação a B, ou seja, está realizando uma trajetória, pois a distância que ele está de B varia com o tempo. Note que o movimento realizado por um corpo depende do referencial adotado. <br><br>
+            O tipo de trajetória classifica o movimento em retilíneo, quando o movimento é realizado em uma reta, ou curvilíneo, quando o movimento é realizado em uma trajetória curva. <br> <br>
+            <br>
+        </div>
+
+        <h2>Exercícios Cinemática</h2>
+
+        <!-- Questão 1 -->
+        <div class="questão-card">
+            <div class="numero-questao">Questão 1</div>
+            <p class="enunciado">(FUVEST 2020) Um drone voando na horizontal, em relação ao solo (como indicado pelo sentido da seta na figura), deixa cair um pacote de livros. A melhor descrição da trajetória realizada pelo pacote de livros, segundo um observador em repouso no solo, é dada pelo percurso descrito na <br>
+                <img src="https://static.todamateria.com.br/upload/im/ag/image-904.jpg" alt="">
+                <br>
+                <p> a) trajetória 1. <br>
+                    b) trajetória 2. <br>
+                    c) trajetória 3. <br>
+                    d) trajetória 4. <br>
+                    e) trajetória 5.</p>
+            <br>
+            
+            <button class="btn-resposta" onclick="alternarResposta(this)">Ver resposta</button>
+            
+            <div class="resposta-container">
+                <div class="gabarito">Resposta correta: d) trajetória 4.</div>
+                <div class="resolucao">
+                    <strong>Resolução:</strong><br>
+                    A trajetória será determinada pela velocidade, composta de duas componentes, uma horizontal para a direita devido à inércia, com velocidade inicial igual à do drone e, uma componente vertical para baixo, devido a força de atração gravitacional.<br>
+                    <br>
+                    A posição do pacote de livros evolui com o quadrado do tempo, sendo a posição e a velocidade inicial iguais a zero. <br>
+                    <br>
+                    <img src="data:image/png;base64,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" alt="">
+                </div>
+            </div>
+        </div>
+
+        <!-- Questão 2 -->
+        <div class="questão-card">
+            <div class="numero-questao">Questão 2</div>
+            <p class="enunciado">(Enem 2013) Conta-se que um curioso incidente aconteceu durante a Primeira Guerra Mundial. Quando voava a uma altitude de dois mil metros, um piloto francês viu o que acreditava ser uma mosca parada perto de sua face. Apanhando-a rapidamente, ficou surpreso ao verificar que se tratava de um projétil alemão. <br> PERELMAN, J. Aprenda física brincando. São Paulo: Hemus, 1970. <br>
+                <br>
+                O piloto consegue apanhar o projétil, pois <br>
+                <br>
+                a) ele foi disparado em direção ao avião francês, freado pelo ar e parou justamente na frente do piloto. <br>
+                b) o avião se movia no mesmo sentido que o dele, com velocidade visivelmente superior. <br>
+                c) ele foi disparado para cima com velocidade constante, no instante em que o avião francês passou. <br>
+                d) o avião se movia no sentido oposto ao dele, com velocidade de mesmo valor. <br>
+                e) o avião se movia no mesmo sentido que o dele, com velocidade de mesmo valor. <br>
+            </p>
+            <br>
+            
+            <button class="btn-resposta" onclick="alternarResposta(this)">Ver resposta</button>
+            
+            <div class="resposta-container">
+                <div class="gabarito">Resposta correta: e) o avião se movia no mesmo sentido que o dele, com velocidade de mesmo valor.</div>
+                <div class="resolucao">
+                    <strong>Resolução:</strong><br>
+                    Nesta caso, a velocidade relativa entre o projétil e o avião era zero, ou bem próxima disto. Isto significa que os dois percorriam uma trajetória de mesmo sentido.
+                </div>
+            </div>
+        </div>
+
+         <!-- Questão 3 -->
+        <div class="questão-card">
+            <div class="numero-questao">Questão 3</div>
+            <p class="enunciado">(UEG 2019) Em um dia de tempestade, você ouve um trovão 10 segundos após ver o clarão do relâmpago. Com o conhecimento de que a velocidade do som seja aproximada para 340 m/s, a distância que você se encontra da tempestade é, aproximadamente, de<br>
+                <br>
+                    a) 34 m <br>
+                    b) 34 km <br>
+                    c) 3,4 m <br>
+                    d) 3,4 km <br>
+                    e) 340 m <br>
+            </p>
+            <br>
+            
+            <button class="btn-resposta" onclick="alternarResposta(this)">Ver resposta</button>
+            
+            <div class="resposta-container">
+                <div class="gabarito">Resposta correta: d) 3,4 km</div>
+                <div class="resolucao">
+                    <strong>Resolução:</strong><br>
+                    <br>
+                    <img src="data:image/png;base64,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" alt="">
+                </div>
+            </div>
+        </div>
+
+         <!-- Questão 4 -->
+        <div class="questão-card">
+            <div class="numero-questao">Questão 4</div>
+            <p class="enunciado">(IFPR - 2018) Um veículo trafega a 108 km/h em uma autoestrada, onde a velocidade máxima permitida é 110 km/h. Ao tocar o telefone celular do condutor, imprudentemente ele desvia sua atenção para o aparelho ao longo de 4s. A distância percorrida pelo veículo durante os 4 s em que se movimentou sem a atenção do condutor, em m, foi igual a:<br>
+                <br>
+                    a) 132.<br>
+                    b) 146.<br>
+                    c) 168. <br>
+                    d) 120. <br>
+            </p>
+            <br>
+            
+            <button class="btn-resposta" onclick="alternarResposta(this)">Ver resposta</button>
+            
+            <div class="resposta-container">
+                <div class="gabarito">Resposta correta: d) 120</div>
+                <div class="resolucao">
+                    <strong>Resolução:</strong><br>
+                    <br>
+                    Considerando que a velocidade do veículo permaneceu constante durante os 4s, usaremos a equação horária do movimento uniforme, ou seja: <br>
+                    <br>
+                    s = s<sub>0</sub> + v.t <br>
+                    <br>
+                    Antes de substituir os valores, precisamos transformar a unidade da velocidade de km/h para m/s. Para isso, basta dividir por 3,6: <br>
+                    <br>
+                    v = 108 : 3,6 = 30 m/s <br>
+                    <br>
+                    Substituindo os valores, encontramos: <br>
+                    <br>
+                    s - s<sub>0</sub> = 30 . 4 = 120 m
+                </div>
+            </div>
+        </div>
+
+         <!-- Questão 5 -->
+        <div class="questão-card">
+            <div class="numero-questao">Questão 5</div>
+            <p class="enunciado">(PUC/RJ - 2017) A partir do solo, uma bola é lançada verticalmente com velocidade v e atinge uma altura máxima h. Se a velocidade de lançamento for aumentada em 3v, a nova altura máxima final atingida pela bola será: (Despreze a resistência do ar)<br>
+                <br>
+                    a) 2h <br>
+                    b) 4h <br>
+                    c) 8h <br>
+                    d) 9h <br>
+                    e) 16h <br>
+            </p>
+            <br>
+            
+            <button class="btn-resposta" onclick="alternarResposta(this)">Ver resposta</button>
+            
+            <div class="resposta-container">
+                <div class="gabarito">Resposta correta: e) 16h</div>
+                <div class="resolucao">
+                    <strong>Resolução:</strong><br>
+                        <br>
+                            A altura atingida pela bola pode ser calculada utilizando a equação de Torricelli, ou seja: <br>
+                        <br>
+                            v² = v<sub>0</sub>² - 2.g.h <br>
+                        <br>
+                            A aceleração da gravidade é negativa, pois a bola está subindo. Além disso, a velocidade quando a bola atinge a altura máxima é igual a zero. <br>
+                        <br>
+                            Assim, na primeira situação temos que o valor de h será encontrado fazendo-se: <br>
+                        <br>
+                            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGsAAABFCAYAAABNGRhKAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAABGJhU0UAAAAthfvO6wAAA5lJREFUeNrtnE+EVVEcx68843meIbNIWsRIRkaGZDyzSGQkGRlajFZpN4ukzSySVm1aJMmQZCSJjJGM2SRJkiEZo9XsWiRjGMkzMobpd/KL13XOveee/7f5fvjy3pn7e947557z+507v/PLsjTZZW2TPpCOZCB59pGmSZ/RFfXhF7qgHpwivUM3/Es/aZa0zHrIbTE5yD5r0MNnj5HmST/ZN66QLgX+fVu81FfmDWmi5/15bovFUdIiD5gPxGydIrX5/TG+MaYC/T4RNK2aGF4k3Ze03wv45fMzainCzD5s2oEGXCA9NzEUy8G4pP00/80lk6Rnipl9jl+LgRqqQTDTIt0hbbCd6KsHpBkN21t83QDpLmmdtEm6WmYoLuqTtPfxhxTthYqkmv4rkiBiueSzQ9DhpVCHBi+lM/xa6Dpph2dNGS94wN6z+xG+6xAPeqvIcKfgb9sBHOtH0pnIwUyTb5gxzetvkm5L2tc0/ewa++S2ZOIMmA6Wjz2OGJzj/PqsZWhuOsN72U96qXAFKr5LOlXcgF3NzX5XMoMafCMXsq5YBpselkHBEw5qMl4SOxFn1CAPVJVHWid4+cozSnqrYT+qiLQ7OvbzfIfnGfcQYAim2TGLtf11xIESQcyjMh+hCJKeStpF5DynYa+6Tst+kr90njlPobuI+hZIX0gjkQbqADv5hoHthCLsFgN4RcNebJMuK9p17P9Mv2v85cWSeMPjY54W+8JXEWfVYoXtQX5Z72f38PdGG+EV6BtHtmX2Cz3blEyjXepkH3MnbvHjprbHzvpBGo44WFV8raxdzK6vHC1/YpexoXh8lLff5HhAtoVqZsA7w6ZPJID/wGS2Zz91kjfTQ+ia9GhzMNBll7EUeUkHAAAAAAAAALBHQGp1DUFqdQ1BanVNQGp1TfCZWg0c4ju1GjicUTFSq0GO1FOrQQ8pp1YDCSmmVgMFLlOrgWdSSq0GJaSSWg00SCG1GmiSQmp1LSOxWMROra7FHmcV3VAPjE+Pg/AYnx4H4TE5Pe7iPC8wwPj0OAiL1elxQ3YD6L/E9PQ4lsEIWJ0eB2GxPj0OwmF9ehyEA6fHgTYpVNUEmsSuqgksCVlVEzhAlcduU0ETeEBVVdO2giZwTFFVTdsKmsAhZVU1bSpoAoeUVdW0raAJHKFTVdO2giZwgG5VTdsKmsABulU1q1bQBB6o8v+wKhU0QWKggmbCQQgqaNaEPV1B8zdBjEGSlAGAnAAAAV50RVh0TWF0aE1MADxtYXRoIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8xOTk4L01hdGgvTWF0aE1MIj48bW4+MDwvbW4+PG1vPj08L21vPjxtc3VwPjxtaT52PC9taT48bW4+MjwvbW4+PC9tc3VwPjxtbz4tPC9tbz48bW4+MjwvbW4+PG1vPi48L21vPjxtaT5nPC9taT48bW8+LjwvbW8+PG1pPmg8L21pPjxtbz4mI3hBMDs8L21vPjxtc3BhY2UgbGluZWJyZWFrPSJuZXdsaW5lIi8+PG1pPmg8L21pPjxtbz49PC9tbz48bWZyYWM+PG1zdXA+PG1pPnY8L21pPjxtbj4yPC9tbj48L21zdXA+PG1yb3c+PG1uPjI8L21uPjxtaT5nPC9taT48L21yb3c+PC9tZnJhYz48bXNwYWNlIGxpbmVicmVhaz0ibmV3bGluZSIvPjwvbWF0aD5xM1hiAAAAAElFTkSuQmCC" alt=""> <br>
+                        <br>
+                            Na segunda situação, a velocidade foi aumentada em 3v, ou seja, a velocidade do lançamento passou a ser de: <br>
+                        <br>
+                            v<sub>2</sub> = v + 3v = 4v <br>
+                        <br>
+                            Desta forma, na segunda situação a altura atingida pela bola será de: <br>
+                        <br>
+                    <img src="data:image/png;base64,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bj4yPC9tbj48bWk+ZzwvbWk+PC9tcm93PjwvbWZyYWM+PG1zcGFjZSBsaW5lYnJlYWs9Im5ld2xpbmUiLz48bXN1Yj48bWk+aDwvbWk+PG1uPjI8L21uPjwvbXN1Yj48bW8+PTwvbW8+PG1mcmFjPjxtcm93Pjxtbz4oPC9tbz48bW4+NDwvbW4+PG1pPnY8L21pPjxtc3VwPjxtbz4pPC9tbz48bW4+MjwvbW4+PC9tc3VwPjwvbXJvdz48bXJvdz48bW4+MjwvbW4+PG1pPmc8L21pPjwvbXJvdz48L21mcmFjPjxtc3BhY2UgbGluZWJyZWFrPSJuZXdsaW5lIi8+PG1zdWI+PG1pPmg8L21pPjxtbj4yPC9tbj48L21zdWI+PG1vPj08L21vPjxtZnJhYz48bXJvdz48bW4+MTY8L21uPjxtc3VwPjxtaT52PC9taT48bW4+MjwvbW4+PC9tc3VwPjwvbXJvdz48bXJvdz48bW4+MjwvbW4+PG1pPmc8L21pPjwvbXJvdz48L21mcmFjPjxtc3BhY2UgbGluZWJyZWFrPSJuZXdsaW5lIi8+PG1pPlA8L21pPjxtaT5vPC9taT48bWk+ZDwvbWk+PG1pPmU8L21pPjxtaT5tPC9taT48bWk+bzwvbWk+PG1pPnM8L21pPjxtbz4mI3hBMDs8L21vPjxtaT5zPC9taT48bWk+dTwvbWk+PG1pPmI8L21pPjxtaT5zPC9taT48bWk+dDwvbWk+PG1pPmk8L21pPjxtaT50PC9taT48bWk+dTwvbWk+PG1pPmk8L21pPjxtaT5yPC9taT48bW8+JiN4QTA7PC9tbz48bWZyYWM+PG1zdXA+PG1pPnY8L21pPjxtbj4yPC9tbj48L21zdXA+PG1yb3c+PG1uPjI8L21uPjxtaT5nPC9taT48L21yb3c+PC9tZnJhYz48bW8+JiN4QTA7PC9tbz48bWk+cDwvbWk+PG1pPm88L21pPjxtaT5yPC9taT48bW8+JiN4QTA7PC9tbz48bWk+aDwvbWk+PG1vPiYjeEEwOzwvbW8+PG1pPm48L21pPjxtaT5hPC9taT48bW8+JiN4QTA7PC9tbz48bWk+ZTwvbWk+PG1pPng8L21pPjxtaT5wPC9taT48bWk+cjwvbWk+PG1pPmU8L21pPjxtaT5zPC9taT48bWk+czwvbWk+PG1pPiYjeEUzOzwvbWk+PG1pPm88L21pPjxtbz4mI3hBMDs8L21vPjxtaT5hPC9taT48bWk+bjwvbWk+PG1pPnQ8L21pPjxtaT5lPC9taT48bWk+cjwvbWk+PG1pPmk8L21pPjxtaT5vPC9taT48bWk+cjwvbWk+PG1vPiw8L21vPjxtbz4mI3hBMDs8L21vPjxtaT5hPC9taT48bWk+czwvbWk+PG1pPnM8L21pPjxtaT5pPC9taT48bWk+bTwvbWk+PG1vPjo8L21vPjwvbWF0aD6c79pDAAAAAElFTkSuQmCC" alt=""> <br>
+                    <br>
+                    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEMAAAARCAYAAACGjBGPAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAABGJhU0UAAAAMyZLetQAAAYVJREFUeNpjYEAF34CYiWHwADUgrgXiCwTUmQLxKiD+BMQ/gHgTENtjUUe0/1SA+BLD4AKLgTgNiP/jUZMG9bwalM8HxNFAfJgS/wUA8XKGwQlwBYYWEJ+hhf/qgbgciIWBuA+IXwLxOyDOG8SBMROII2nhv1VQDaDk5QfNW9LQPMhFgScIYUoC4wYQSxJpBkn+uwXEW4CYB038HTQ0B2PK+AEtK9ZBC8df0GwTjUUt0f4DhdIXLCHEArVksGYTkPg5IPaCuhXkD2uox7PI9Z85EO/FYpklEO+n0BO0zCafoEkdHRgA8VNy/QcqhOZjUYxNHOYJUJI8Cq2yBiplbMPTbvhFpv8YJgFxIhbFIPFkHJYxQZPiuQEMDJD94VjENYD4JLn+WwfNd8SKoxdiAxUYbEB8EOohFqQsAWpcuZDrP1CJyoFFMS5xGLCHOoaWgUCojBEF4tnQAvIP1D22VPIf0UASWmYoMYxwoAatsyVHekBIQktxPoZRAA4IjdFgIL5QG5IAAHtOgNH+RnkjAAAAf3RFWHRNYXRoTUwAPG1hdGggeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzE5OTgvTWF0aC9NYXRoTUwiPjxtc3ViPjxtaT5oPC9taT48bW4+MjwvbW4+PC9tc3ViPjxtbz49PC9tbz48bW4+MTY8L21uPjxtaT5oPC9taT48L21hdGg+3ai8lgAAAABJRU5ErkJggg==" alt=""> <br>
+                </div>
+            </div>
+        </div>
+
+         <!-- Questão 6 -->
+        <div class="questão-card">
+            <div class="numero-questao">Questão 6</div>
+            <p class="enunciado">(UECE - 2016 - 2ª fase) Considere uma pedra em queda livre e uma criança em um carrossel que gira com velocidade angular constante. Sobre o movimento da pedra e da criança, é correto afirmar que<br>
+                <br>
+                    a) a aceleração da pedra varia e a criança gira com aceleração nula. <br>
+                    b) a pedra cai com aceleração nula e a criança gira com aceleração constante. <br>
+                    c) a aceleração em ambas é zero. <br>
+                    d) ambas sofrem acelerações de módulos constantes. <br>
+                    <br>
+            </p>
+            <br>
+            
+            <button class="btn-resposta" onclick="alternarResposta(this)">Ver resposta</button>
+            
+            <div class="resposta-container">
+                <div class="gabarito">Resposta correta: d) ambas sofrem acelerações de módulos constantes.</div>
+                <div class="resolucao">
+                    <strong>Resolução:</strong><br>
+                        <br>
+                            Tanto a velocidade quanto a aceleração são grandezas vetoriais, ou seja, são caracterizadas por módulo, direção e sentido. <br>
+                        <br>
+                            Para que uma grandeza deste tipo sofra uma variação é necessário que pelo menos um desses atributos sofra modificações. <br>
+                        <br>
+                            Quando um corpo está em queda livre o módulo da sua velocidade varia uniformemente, apresentando aceleração constante e igual a 9,8 m/s2 (aceleração da gravidade). <br>
+                        <br>
+                            Já no carrossel, o módulo da velocidade é constante, contudo, sua direção está variando. Neste caso, o corpo terá uma aceleração constante e que aponta para o centro da trajetória circular (centrípeta).
+                        <br>
+                </div>
+            </div>
+        </div>
+
+         <!-- Questão 7 -->
+        <div class="questão-card">
+            <div class="numero-questao">Questão 7</div>
+            <p class="enunciado">(UFLA - 2016) Uma pedra foi lançada verticalmente para cima. No momento em que ela está subindo, a<br>
+                <br>
+                    a) velocidade diminui e a aceleração diminui <br>
+                    b) velocidade diminui e a aceleração aumenta <br>
+                    c) velocidade é constante e a aceleração diminui <br>
+                    d) velocidade diminui e a aceleração é constante <br>
+                    <br>
+            </p>
+
+            <br>
+
+            <button class="btn-resposta" onclick="alternarResposta(this)">Ver resposta</button>
+            
+            <div class="resposta-container">
+                <div class="gabarito">Resposta correta: d) velocidade diminui e a aceleração é constante</div>
+                <div class="resolucao">
+                    <strong>Resolução:</strong><br>
+                    <br>
+                        Um corpo ao ser lançado verticalmente para cima, próximo à superfície da terra, sofre a atuação de uma força gravitacional. <br>
+                        <br>
+                        Esta força lhe imprime uma aceleração constante de módulo igual a 9,8 m/s² , direção vertical e sentido para baixo. Desta maneira, o módulo da velocidade vai diminuindo até que atinja o valor igual a zero.
+                </div>
+            </div>
+        </div>
+
+         <!-- Questão 8 -->
+        <div class="questão-card">
+            <div class="numero-questao">Questões adicionais</div>
+            <p class="enunciado">Entrem e realizem o download ou salvem o link para realizarem durante a semana, bons estudos pessoal!!<br>
+                <br>
+                   <a href="https://docs.ufpr.br/~cegalvao/cursoalcance/2017/aulas/Impressao_Fisica_05_20.pdf" target="_blank"><h2>👉 Atividades 👈</h2></a>
+            </p>
+            <br>
+        </div>
+    </div>
+    </main>
+
+    <!-- RODAPÉ (FOOTER) -->
+    <footer>
+        <div class="footer-container">
+            <div class="copyright">&copy; 2026 Todos os direitos reservados.</div>
+            <div class="signature">Carlos Eduardo S. do Nascimento</div>
+        </div>
+    </footer>
+
+    <!-- Lógica JavaScript de Alternância da Sidebar -->
+    <script>
+        function toggleSidebar(open) {
+            const sidebar = document.getElementById('sidebarMenu');
+            const overlay = document.getElementById('sidebarOverlay');
+            
+            if (open) {
+                sidebar.classList.add('active');
+                overlay.classList.add('active');
+            } else {
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+            }
+        }
+
+        function alternarResposta(botao) {
+            // Encontra o container de resposta que está logo após o botão clicado
+            const respostaContainer = botao.nextElementSibling;
+            
+            // Verifica se a resposta está visível
+            if (respostaContainer.style.display === "block") {
+                respostaContainer.style.display = "none";
+                botao.textContent = "Ver resposta";
+                botao.style.backgroundColor = ""; // Volta para a cor padrão do CSS
+            } else {
+                respostaContainer.style.display = "block";
+                botao.textContent = "Mostrar menos";
+                botao.style.backgroundColor = "#64748b"; // Muda a cor para indicar que pode fechar
+            }
+        }
+    </script>
+</body>
+</html>

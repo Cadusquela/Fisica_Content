@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulações - Física Conteúdo</title>
+    <link rel="icon" type="image/png" href="157141.png">
+    <style>
+        /* Reset de estilos para limpar margens padrões */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        /* Garante que o rodapé fique sempre embaixo se a página tiver pouco conteúdo */
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            background-color: #f8f9fa;
+            color: #333;
+        }
+
+         /* Cabeçalho e Navbar ocupando toda a largura */
+         header {
+            width: 100%;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background-color: #0354b1e7;
+        }
+
+        header::before {
+            background-image:url(fundo\ header.png);
+            background-size: 30%;
+            position: absolute;
+            z-index: -1;
+            content: "";
+            inset: 0;
+            opacity: 40%;
+        }
+
+        nav {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #07315e;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo img{
+            height: auto;
+            width: 40px; /* Definido tamanho fixo proporcional para o logotipo */
+        }
+
+        /* Container que agrupa a navegação padrão e o botão da barra lateral */
+        .nav-container {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+        }
+
+        .nav-links {
+            list-style: none;
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #555;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: #007bff;
+        }
+
+        /* Botão para acionar a Sidebar */
+        .btn-sidebar-toggle {
+            background-color: #007bff;
+            color: #ffffff;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-sidebar-toggle:hover {
+            background-color: #0056b3;
+        }
+
+        /* Estrutura Base da Sidebar */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            right: -300px; /* Oculta a barra para fora da tela inicial à direita */
+            width: 300px;
+            height: 100%;
+            background-color: #ffffff;
+            box-shadow: -4px 0 15px rgba(0, 0, 0, 0.1);
+            z-index: 2000;
+            transition: right 0.3s ease-in-out;
+            padding: 30px 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        /* Classe utilitária engatada via JS para deslizar e abrir a barra */
+        .sidebar.active {
+            right: 0;
+        }
+
+        /* Cabeçalho interno da Sidebar */
+        .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #dee2e6;
+            padding-bottom: 15px;
+        }
+
+        .sidebar-header h3 {
+            font-size: 1.2rem;
+            color: #222;
+        }
+
+        /* Botão de Fechar interno */
+        .btn-sidebar-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #666;
+            cursor: pointer;
+            transition: color 0.2s;
+            line-height: 1;
+        }
+
+        .btn-sidebar-close:hover {
+            color: #dc3545;
+        }
+
+        /* Lista de links dedicados da Sidebar */
+        .sidebar-links {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .sidebar-links a {
+            text-decoration: none;
+            color: #495057;
+            font-size: 1.05rem;
+            font-weight: 500;
+            padding: 10px 12px;
+            border-radius: 6px;
+            display: block;
+            transition: background-color 0.2s, color 0.2s;
+        }
+
+        .sidebar-links a:hover {
+            background-color: #f1f3f5;
+            color: #007bff;
+        }
+
+        /* Fundo escurecido atrás da página quando a Sidebar estiver ativa */
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.4);
+            z-index: 1500;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        .sidebar-overlay.active {
+            display: block;
+            opacity: 1;
+        }
+
+        /* Corpo principal da página */
+        main {
+            flex: 1;
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .page-header {
+            margin-bottom: 30px;
+        }
+
+        .page-header h1 {
+            font-size: 2rem;
+            color: #222;
+            margin-bottom: 10px;
+        }
+
+        .page-header p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        /* Grade de Cards para as Simulações */
+        .grid-simulacoes {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-top: 20px;
+        }
+
+        /* Estilo do Card Individual */
+        .card-simulacao {
+            background: #b6d0f1;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(80, 80, 80, 0.05);
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .card-simulacao:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Espaço reservado para colocar imagem ou canvas do simulador */
+        .card-preview {
+            height: 180px;
+            background-color: #b6d0f1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6c757d;
+            font-weight: bold;
+            border-bottom: 1px solid #91c2f3;
+        }
+
+        .card-preview img{
+            height: 80%;
+            width: 80%;
+        }
+
+        .card-content {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+
+        .card-content h2 {
+            font-size: 1.3rem;
+            color: #222;
+            margin-bottom: 10px;
+        }
+
+        .card-content p {
+            font-size: 0.95rem;
+            color: #666;
+            line-height: 1.5;
+            margin-bottom: 20px;
+            flex-grow: 1;
+        }
+
+        /* Botão de Ação do Card */
+        .btn-simular {
+            display: inline-block;
+            text-align: center;
+            background-color: #007bff;
+            color: #ffffff;
+            text-decoration: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            font-weight: 600;
+            transition: background-color 0.2s;
+        }
+
+        .btn-simular:hover {
+            background-color: #0056b3;
+        }
+
+        /* Rodapé Preto com assinatura alinhada */
+        footer {
+            background-color: #000000;
+            color: #ffffff;
+            width: 100%;
+            padding: 20px 0;
+            margin-top: auto;
+        }
+
+        .footer-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .copyright {
+            font-size: 0.9rem;
+            color: #aaa;
+        }
+
+        .signature {
+            font-size: 0.9rem;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- CABEÇALHO (HEADER) -->
+    <header>
+        <nav>
+            <div class="logo">
+                <img src="width_200.png" alt="">
+                Física Conteúdo
+            </div>
+            <div class="nav-container">
+                <!-- Botão que abre a barra lateral -->
+                <button class="btn-sidebar-toggle" onclick="toggleSidebar(true)">Menu ☰</button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- BARRA LATERAL (SIDEBAR) -->
+    <div class="sidebar" id="sidebarMenu">
+        <div class="sidebar-header">
+            <h3>Navegação</h3>
+            <button class="btn-sidebar-close" onclick="toggleSidebar(false)">&times;</button>
+        </div>
+        <ul class="sidebar-links">
+            <li><a href="index.html">Início</a></li>
+                    <li><a href="simulacao.html">Simulações</a></li>
+                    <li><a href="main-atividades.html">Atividades</a></li>
+                    <li><a href="https://forms.gle/hc9Qkb8fZgYwz1J77">Tira Dúvidas</a></li>
+        </ul>
+    </div>
+
+    <!-- Cortina de fundo para fechar ao clicar fora da barra -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar(false)"></div>
+
+    <!-- CORPO (MAIN) -->
+    <main>
+        <div class="page-header">
+            <h1>Simulações Interativas</h1>
+            <p>Explore conceitos físicos na prática através de laboratórios virtuais e experimentos visuais.</p>
+        </div>
+
+        <!-- GRADE DE CONTEÚDO -->
+        <div class="grid-simulacoes">
+            
+            <!-- Card 1: Movimento Uniforme -->
+            <div class="card-simulacao">
+                <div class="card-preview"><img src="image.png" alt="M.R.U"></div>
+                <div class="card-content">
+                    <h2>Movimento Retilíneo Uniforme</h2>
+                    <p>Altere a velocidade e a posição inicial para observar o comportamento do gráfico de posição pelo tempo em tempo real.</p>
+                    <a href="MRU.html" class="btn-simular">Abrir Simulador</a>
+                </div>
+            </div>
+
+            <!-- Card 2: Lançamento de Projéteis -->
+            <div class="card-simulacao">
+                <div class="card-preview"><img src="image1.png" alt="MRUV"></div>
+                <div class="card-content">
+                    <h2>M.R.U.V. (Movimento Retilíneo Uniformemente Variado).</h2>
+                    <p>O movimento retilíneo uniformemente variado, ou MRUV, é o que segue uma trajetória retilínea e apresenta uma alteração uniforme no módulo de velocidade.</p>
+                    <a href="MRUV.html" class="btn-simular">Abrir Simulador</a>
+                </div>
+            </div>
+
+            <!-- Card 3: Óptica Geométrica -->
+            <div class="card-simulacao">
+                <div class="card-preview"><img src="image2.png" alt="Queda Livre"></div>
+                <div class="card-content">
+                    <h2>Queda Livre</h2>
+                    <p>Geralmente, quando um corpo descreve um MRUV na direção vertical para baixo, tal movimento é chamado de queda livre.</p>
+                    <a href="QuedaLivre.html" class="btn-simular">Abrir Simulador</a>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- RODAPÉ (FOOTER) -->
+    <footer>
+        <div class="footer-container">
+            <div class="copyright">&copy; 2026 Todos os direitos reservados.</div>
+            <div class="signature">Carlos Eduardo S. do Nascimento</div>
+        </div>
+    </footer>
+
+    <script>
+        function toggleSidebar(open) {
+            const sidebar = document.getElementById('sidebarMenu');
+            const overlay = document.getElementById('sidebarOverlay');
+            
+            if (open) {
+                sidebar.classList.add('active');
+                overlay.classList.add('active');
+            } else {
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+            }
+        }
+    </script>
+
+</body>
+</html>
