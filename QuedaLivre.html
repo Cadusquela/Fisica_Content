@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Queda Livre - Física Conteúdo</title>
+    <style>
+        /* Reset de estilos padrões */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        /* Garante que o rodapé fique sempre embaixo */
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            background-color: #f8f9fa;
+            color: #333;
+        }
+
+         /* Cabeçalho e Navbar ocupando toda a largura */
+         header {
+            width: 100%;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background-color: #0354b1e7;
+        }
+
+        header::before {
+            background-image:url(fundo\ header.png);
+            background-size: 30%;
+            position: absolute;
+            z-index: -1;
+            content: "";
+            inset: 0;
+            opacity: 40%;
+        }
+
+        nav {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #07315e;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo img{
+            height: auto;
+            width: 40px; /* Definido tamanho fixo proporcional para o logotipo */
+        }
+
+        /* Container que agrupa a navegação padrão e o botão da barra lateral */
+        .nav-container {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+        }
+
+        .nav-links {
+            list-style: none;
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #555;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: #007bff;
+        }
+
+        /* Botão para acionar a Sidebar */
+        .btn-sidebar-toggle {
+            background-color: #007bff;
+            color: #ffffff;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-sidebar-toggle:hover {
+            background-color: #0056b3;
+        }
+
+        /* Estrutura Base da Sidebar */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            right: -300px; /* Oculta a barra para fora da tela inicial à direita */
+            width: 300px;
+            height: 100%;
+            background-color: #ffffff;
+            box-shadow: -4px 0 15px rgba(0, 0, 0, 0.1);
+            z-index: 2000;
+            transition: right 0.3s ease-in-out;
+            padding: 30px 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        /* Classe utilitária engatada via JS para deslizar e abrir a barra */
+        .sidebar.active {
+            right: 0;
+        }
+
+        /* Cabeçalho interno da Sidebar */
+        .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #dee2e6;
+            padding-bottom: 15px;
+        }
+
+        .sidebar-header h3 {
+            font-size: 1.2rem;
+            color: #222;
+        }
+
+        /* Botão de Fechar interno */
+        .btn-sidebar-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #666;
+            cursor: pointer;
+            transition: color 0.2s;
+            line-height: 1;
+        }
+
+        .btn-sidebar-close:hover {
+            color: #dc3545;
+        }
+
+        /* Lista de links dedicados da Sidebar */
+        .sidebar-links {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .sidebar-links a {
+            text-decoration: none;
+            color: #495057;
+            font-size: 1.05rem;
+            font-weight: 500;
+            padding: 10px 12px;
+            border-radius: 6px;
+            display: block;
+            transition: background-color 0.2s, color 0.2s;
+        }
+
+        .sidebar-links a:hover {
+            background-color: #f1f3f5;
+            color: #007bff;
+        }
+
+        /* Fundo escurecido atrás da página quando a Sidebar estiver ativa */
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.4);
+            z-index: 1500;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        .sidebar-overlay.active {
+            display: block;
+            opacity: 1;
+        }
+
+        /* Corpo principal da página */
+        main {
+            flex: 1;
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+
+        .page-header {
+            margin-bottom: 25px;
+        }
+
+        .page-header h1 {
+            font-size: 1.8rem;
+            color: #222;
+        }
+
+        /* Container do Simulador */
+        .simulator-container {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            gap: 25px;
+        }
+
+        @media (max-width: 900px) {
+            .simulator-container { grid-template-columns: 1fr; }
+        }
+
+        /* Painel Dinâmico de Fórmulas Matemáticas */
+        .formula-card {
+            background: #f1f3f5;
+            border-left: 5px solid #007bff;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+
+        .formula-title {
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: #666;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .math-expr {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: #111;
+        }
+
+        .math-expr span {
+            transition: all 0.1s;
+        }
+
+        /* Canvas customizado dentro do padrão */
+        canvas {
+            background: #252525;
+            border-radius: 8px;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        /* Painel de Controle Lateral */
+        .controls-panel {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .control-group label {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #495057;
+        }
+
+        /* Input Numérico Estilizado */
+        .control-group input[type="number"] {
+            padding: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            font-size: 1rem;
+            color: #333;
+            background-color: #fff;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .control-group input[type="number"]:focus {
+            border-color: #007bff;
+        }
+
+        /* Botões de Simulação no padrão de cores do projeto */
+        .btn {
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s;
+            text-align: center;
+            font-size: 0.95rem;
+        }
+
+        .btn-aplicar { background-color: #28a745; color: white; }
+        .btn-aplicar:hover { background-color: #218838; }
+        
+        .btn-pausa { background-color: #ffc107; color: #212529; }
+        .btn-pausa:hover { background-color: #e0a800; }
+        
+        .btn-reset { background-color: #dc3545; color: white; }
+        .btn-reset:hover { background-color: #c82333; }
+
+        /* Rodapé Preto com assinatura alinhada */
+        footer {
+            background-color: #000000;
+            color: #ffffff;
+            width: 100%;
+            padding: 20px 0;
+            margin-top: auto;
+        }
+
+        .footer-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .copyright {
+            font-size: 0.9rem;
+            color: #aaa;
+        }
+
+        .signature {
+            font-size: 0.9rem;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- CABEÇALHO (HEADER) -->
+    <header>
+        <nav>
+            <div class="logo">
+                <img src="width_200.png" alt="">
+                Física Conteúdo
+            </div>
+            <div class="nav-container">
+                <!-- Botão que abre a barra lateral -->
+                <button class="btn-sidebar-toggle" onclick="toggleSidebar(true)">Menu ☰</button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- BARRA LATERAL (SIDEBAR) -->
+    <div class="sidebar" id="sidebarMenu">
+        <div class="sidebar-header">
+            <h3>Navegação</h3>
+            <button class="btn-sidebar-close" onclick="toggleSidebar(false)">&times;</button>
+        </div>
+        <ul class="sidebar-links">
+            <li><a href="index.html">Início</a></li>
+                    <li><a href="simulacao.html">Simulações</a></li>
+                    <li><a href="main-atividades.html">Atividades</a></li>
+                    <li><a href="https://forms.gle/hc9Qkb8fZgYwz1J77" target="_blank">Tira Dúvidas</a></li>
+        </ul>
+    </div>
+
+    <!-- Cortina de fundo para fechar ao clicar fora da barra -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar(false)"></div>
+
+    <!-- CORPO PRINCIPAL (MAIN) -->
+    <main>
+        <div class="page-header">
+            <h1>Laboratório Virtual: Queda Livre (M.R.U.V.)</h1>
+        </div>
+
+        <div class="simulator-container">
+            
+            <!-- Coluna da Esquerda: Fórmulas Matemáticas e Área Gráfica -->
+            <div>
+                <!-- Equação da Velocidade -->
+                <div class="formula-card" style="border-left-color: #28a745;">
+                    <div class="formula-title">Equação da Velocidade</div>
+                    <div class="math-expr">
+                        v = g · t &nbsp;⇒&nbsp; 
+                        <span id="f-velocidade" style="color: #28a745;">v = 0.0 m/s</span>
+                    </div>
+                </div>
+
+                <!-- Função Horária do Espaço -->
+                <div class="formula-card" style="border-left-color: #dc3545;">
+                    <div class="formula-title">Função Horária do Espaço</div>
+                    <div class="math-expr">
+                        h = (g · t²) / 2 &nbsp;⇒&nbsp; 
+                        <span id="f-altura" style="color: #dc3545;">Altura = 0.0 m</span>
+                    </div>
+                </div>
+
+                <!-- Canvas Gráfico -->
+                <canvas id="canvasQueda" width="700" height="450"></canvas>
+            </div>
+
+            <!-- Coluna da Direita: Painel de Controle -->
+            <div class="controls-panel">
+                <h3 style="color:#222; margin-bottom: 5px;">Controles</h3>
+                
+                <div class="control-group">
+                    <label for="g_val">Gravidade (m/s²):</label>
+                    <input type="number" id="g_val" value="9.8" step="0.5">
+                </div>
+                
+                <button class="btn btn-aplicar" onclick="aplicarConfig()">Aplicar e Iniciar 🚀</button>
+                <button class="btn btn-pausa" id="btnPausa" onclick="alternarPausa()">Pausar ⏸</button>
+                <button class="btn btn-reset" onclick="reiniciarSimulacao()">Reiniciar 🔄</button>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- RODAPÉ PRETO COM ASSINATURA -->
+    <footer>
+        <div class="footer-container">
+            <div class="copyright">&copy; 2026 Todos os direitos reservados.</div>
+            <div class="signature">Carlos Eduardo S. do Nascimento</div>
+        </div>
+    </footer>
+
+    <!-- Lógica Física Integrada e Sincronizada -->
+    <script>
+        const canvas = document.getElementById('canvasQueda');
+        const ctx = canvas.getContext('2d');
+
+        // Elementos de exibição matemática em tempo real
+        const fVelocidade = document.getElementById('f-velocidade');
+        const fAltura = document.getElementById('f-altura');
+
+        let y = 140;
+        let v = 0;
+        let g = 0.15; 
+        let t = 0;
+        let rodando = true;
+
+        function aplicarConfig() {
+            let gInput = parseFloat(document.getElementById('g_val').value);
+            if (isNaN(gInput) || gInput <= 0) gInput = 9.8; // Fallback de segurança
+            g = gInput * 0.0153; // Ajuste matemático proporcional de escala
+            reiniciarSimulacao();
+            rodando = true;
+            document.getElementById('btnPausa').innerText = "Pausar ⏸";
+            document.getElementById('btnPausa').className = "btn btn-pausa";
+        }
+
+                function alternarPausa() {
+            rodando = !rodando;
+            const btn = document.getElementById('btnPausa');
+            if (rodando) {
+                btn.innerText = "Pausar ⏸";
+                btn.style.background = "#ffc107";
+                btn.style.color = "#212529";
+            } else {
+                btn.innerText = "Continuar ▶";
+                btn.style.background = "#007bff";
+                btn.style.color = "#ffffff";
+            }
+        }
+
+        function reiniciarSimulacao() {
+            y = 140;
+            v = 0;
+            t = 0;
+            atualizarFormulasTexto(0, 0);
+        }
+
+        function atualizarFormulasTexto(vReal, hReal) {
+            const gInput = parseFloat(document.getElementById('g_val').value);
+            fVelocidade.innerHTML = `v = ${gInput} m/s² × ${t.toFixed(1)}s = <span>${vReal} m/s</span>`;
+            fAltura.innerHTML = `Altura Percorrida = <span>${hReal} m</span>`;
+        }
+
+        function desenhar() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Cenário e Estruturas em Perspectiva
+            ctx.fillStyle = "#95a5a6";
+            ctx.beginPath(); ctx.moveTo(300, 140); ctx.lineTo(400, 140); ctx.lineTo(380, 120); ctx.lineTo(320, 120); ctx.fill();
+            ctx.fillStyle = "#34495e";
+            ctx.beginPath(); ctx.moveTo(250, 420); ctx.lineTo(450, 420); ctx.lineTo(420, 390); ctx.lineTo(280, 390); ctx.fill();
+
+            // Sombra dinâmica proporcional à distância do chão
+            let distanciaChao = 390 - y;
+            let tamanhoSombra = Math.max(0, 20 - (distanciaChao / 15));
+            if(y <= 390) {
+                ctx.fillStyle = "rgba(0,0,0,0.4)";
+                ctx.beginPath(); ctx.ellipse(350, 405, tamanhoSombra, tamanhoSombra/3, 0, 0, Math.PI*2); ctx.fill();
+            }
+
+            // Esfera Metálica Estilizada com Gradiente Radial
+            let gradiente = ctx.createRadialGradient(345, y - 5, 2, 350, y, 15);
+            gradiente.addColorStop(0, '#5dade2'); gradiente.addColorStop(1, '#2471a3');
+            ctx.fillStyle = gradiente;
+            ctx.beginPath(); ctx.arc(350, y, 15, 0, Math.PI * 2); ctx.fill();
+
+            // Captura de valores matemáticos reais baseados nos inputs
+            let g_exibida = parseFloat(document.getElementById('g_val').value);
+            let v_real = (v * 65 / g_exibida).toFixed(1);
+            let h_real = ((y - 140) * 0.16).toFixed(1);
+
+            // Atualiza os valores matemáticos expostos nas estruturas HTML externas
+            if (rodando && y < 390) {
+                atualizarFormulasTexto(v_real, h_real);
+            }
+
+            // Motor de Cálculo Físico
+            if (rodando && y < 390) {
+                v += g;
+                y += v;
+                t += 0.05;
+            }
+
+            requestAnimationFrame(desenhar);
+        }
+
+        // Inicialização Primária da Simulação
+        aplicarConfig();
+        desenhar();
+
+        function toggleSidebar(open) {
+            const sidebar = document.getElementById('sidebarMenu');
+            const overlay = document.getElementById('sidebarOverlay');
+            
+            if (open) {
+                sidebar.classList.add('active');
+                overlay.classList.add('active');
+            } else {
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+            }
+        }
+    </script>
+</body>
+</html>
+

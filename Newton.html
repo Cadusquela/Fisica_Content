@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Física Conteúdo</title>
+    <link rel="icon" type="image/png" href="157141.png">
+    <style>
+        /* Reset de estilos para limpar margens padrões */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary-color: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-color: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+            --success-color: #16a34a;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Garante que o rodapé fique sempre embaixo se a página tiver pouco conteúdo */
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            background-color: #f8f9fa;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        /* Cabeçalho e Navbar ocupando toda a largura */
+        header {
+            width: 100%;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background-color: #0354b1e7;
+        }
+
+        header::before {
+            background-image:url(fundo\ header.png);
+            background-size: 30%;
+            position: absolute;
+            z-index: -1;
+            content: "";
+            inset: 0;
+            opacity: 40%;
+        }
+
+        nav {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #07315e;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo img{
+            height: auto;
+            width: 40px; /* Definido tamanho fixo proporcional para o logotipo */
+        }
+
+        /* Container que agrupa a navegação padrão e o botão da barra lateral */
+        .nav-container {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+        }
+
+        .nav-links {
+            list-style: none;
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #555;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: #007bff;
+        }
+
+        /* Botão para acionar a Sidebar */
+        .btn-sidebar-toggle {
+            background-color: #007bff;
+            color: #ffffff;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-sidebar-toggle:hover {
+            background-color: #0056b3;
+        }
+
+        /* Estrutura Base da Sidebar */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            right: -300px; /* Oculta a barra para fora da tela inicial à direita */
+            width: 300px;
+            height: 100%;
+            background-color: #ffffff;
+            box-shadow: -4px 0 15px rgba(0, 0, 0, 0.1);
+            z-index: 2000;
+            transition: right 0.3s ease-in-out;
+            padding: 30px 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        /* Classe utilitária engatada via JS para deslizar e abrir a barra */
+        .sidebar.active {
+            right: 0;
+        }
+
+        /* Cabeçalho interno da Sidebar */
+        .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #dee2e6;
+            padding-bottom: 15px;
+        }
+
+        .sidebar-header h3 {
+            font-size: 1.2rem;
+            color: #222;
+        }
+
+        /* Botão de Fechar interno */
+        .btn-sidebar-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #666;
+            cursor: pointer;
+            transition: color 0.2s;
+            line-height: 1;
+        }
+
+        .btn-sidebar-close:hover {
+            color: #dc3545;
+        }
+
+        /* Lista de links dedicados da Sidebar */
+        .sidebar-links {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .sidebar-links a {
+            text-decoration: none;
+            color: #495057;
+            font-size: 1.05rem;
+            font-weight: 500;
+            padding: 10px 12px;
+            border-radius: 6px;
+            display: block;
+            transition: background-color 0.2s, color 0.2s;
+        }
+
+        .sidebar-links a:hover {
+            background-color: #f1f3f5;
+            color: #007bff;
+        }
+
+        /* Fundo escurecido atrás da página quando a Sidebar estiver ativa */
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.4);
+            z-index: 1500;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        .sidebar-overlay.active {
+            display: block;
+            opacity: 1;
+        }
+
+        /* Corpo principal da página */
+        main {
+            flex: 1;
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .content-box {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        h1 {
+            margin-bottom: 15px;
+            color: #222;
+        }
+
+        p {
+            line-height: 1.6;
+            color: #666;
+        }
+
+        .list-qst4{
+            list-style: decimal;
+            margin-left: 20px;
+        }
+
+        ul{
+            list-style: none;
+        }
+
+        .img-qst6{
+            width: 70%;
+        }
+
+        .questão-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        .numero-questao {
+            font-weight: bold;
+            color: var(--primary-color);
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .enunciado {
+            margin-bottom: 1rem;
+            font-weight: 500;
+        }
+
+        .enunciado-list{
+            list-style: none;
+        }
+
+        .btn-resposta {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.6rem 1.2rem;
+            font-size: 0.95rem;
+            font-weight: 500;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+
+        .btn-resposta:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn-resposta:active {
+            transform: scale(0.98);
+        }
+
+        .resposta-container {
+            display: none; /* Escondido por padrão */
+            margin-top: 1.2rem;
+            padding-top: 1.2rem;
+            border-top: 2px dashed var(--border-color);
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .gabarito {
+            color: var(--success-color);
+            font-weight: bold;
+            font-size: 1.05rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .resolucao {
+            color: var(--text-secondary);
+            background-color: #f1f5f9;
+            padding: 1rem;
+            border-radius: 6px;
+            margin: 0;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Rodapé Preto com assinatura alinhada */
+        footer {
+            background-color: #000000;
+            color: #ffffff;
+            width: 100%;
+            padding: 20px 0;
+            margin-top: auto;
+            position: relative;
+            z-index: 900;
+        }
+
+        .footer-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .copyright {
+            font-size: 0.9rem;
+            color: #aaa;
+        }
+
+        .signature {
+            font-size: 0.9rem;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- CABEÇALHO (HEADER) -->
+    <header>
+        <nav>
+            <div class="logo">
+                <img src="width_200.png" alt="">
+                Física Conteúdo
+            </div>
+            <div class="nav-container">
+                <!-- Botão que abre a barra lateral -->
+                <button class="btn-sidebar-toggle" onclick="toggleSidebar(true)">Menu ☰</button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- BARRA LATERAL (SIDEBAR) -->
+    <div class="sidebar" id="sidebarMenu">
+        <div class="sidebar-header">
+            <h3>Navegação</h3>
+            <button class="btn-sidebar-close" onclick="toggleSidebar(false)">&times;</button>
+        </div>
+        <ul class="sidebar-links">
+            <li><a href="index.html">Início</a></li>
+                    <li><a href="simulacao.html">Simulações</a></li>
+                    <li><a href="main-atividades.html">Atividades</a></li>
+                    <li><a href="https://forms.gle/hc9Qkb8fZgYwz1J77" target="_blank">Tira Dúvidas</a></li>
+        </ul>
+    </div>
+
+    <!-- Cortina de fundo para fechar ao clicar fora da barra -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar(false)"></div>
+
+    <!-- CORPO (MAIN) -->
+    <main>
+        <div class="container">
+            <div class="content-box">
+                <h1>Exercícios Newton</h1>
+                As leis de Newton englobam três leis da Mecânica Clássica: lei da inércia, lei fundamental da dinâmica e lei da ação e reação.
+            </div>
+
+        <!-- Questão 1 -->
+        <div class="questão-card">
+            <div class="numero-questao">Questão 1</div>
+            <p class="enunciado">Um carro de 1600 kg se move com uma velocidade de 72 km/h quando se depara com um caminhão trafegando com menor velocidade. Com a intenção de ultrapassá-lo, o motorista aumenta sua velocidade para 108 km/h, acelerando uniformemente durante 10 segundos. Qual é a força resultante que atua sobre o carro que o permite alterar sua velocidade? Despreze forças dissipativas.</p>
+            
+            <button class="btn-resposta" onclick="alternarResposta(this)">Ver resposta</button>
+            
+            <div class="resposta-container">
+                <div class="gabarito">Resposta: 1600 N</div>
+                <div class="resolucao">
+                    <strong>Resolução:</strong><br>
+                    Desprezando forças como o atrito e a resistência do ar e, considerando R como a força resultante que atua no carro, conforme a segunda lei de Newton: <br><br>
+                    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADgAAAANCAYAAAD8Ma0AAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAABGJhU0UAAAAMyZLetQAAAQlJREFUeNpjYECA/1D8GogPA/E6IBZlGEbgPxo/FurJYetBJiD+Mdw9+I2G9ngB8RloIK4BYh6ouCMQn4SKHwViNSLM9IPq+QXEt4DYmhgPugHxXgIOJYRx6UsD4v1ArAUViwfiSVBPI4vHQgOBEFiKpCcRiK/g8yAbEEcC8V0gNqdRDK6BphBkAIqxmVjE/5BoPhM0JgnGiAcNswIHieKUZjcMQVEiSlBKkig1xJFBLTTv/cFnN7pgKBBX06Ewo9SDM6Fu5SAlBmFgOQ3yIbU9+ImcJAoDwtCimmcQeRA9Cd4A4mQoWxqIm4H4OZRNlAVBQDx/EHtQD4jPQUvOk9AU1wjELxlGAgAAv9hra9Gm7GcAAACwdEVYdE1hdGhNTAA8bWF0aCB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMTk5OC9NYXRoL01hdGhNTCI+PG1pIG1hdGh2YXJpYW50PSJub3JtYWwiPlI8L21pPjxtbz49PC9tbz48bWkgbWF0aHZhcmlhbnQ9Im5vcm1hbCI+bTwvbWk+PG1vPi48L21vPjxtaSBtYXRodmFyaWFudD0ibm9ybWFsIj5hPC9taT48L21hdGg+dfYtLgAAAABJRU5ErkJggg==" alt=""><br><br>
+                    Onde, <br><br>
+                    <ul>
+                        <li>R é o módulo da força resultante;</li>
+                        <li>m é a massa;</li>
+                        <li>a é a aceleração.</li>
+                    </ul><br><br>
+                    O enunciado já fornece a massa do veículo, 1600 kg, faltando a aceleração durante o intervalo. <br><br>
+                    Os valores das velocidades inicial e final estão em km/h, para o cálculo, convertemos para m/s, bastando dividir por 3,6. <br><br>
+                    108 km/h / 3,6 = 30 m/s <br><br>
+                    72 km/h / 3,6 = 20 m/s <br><br>
+                    <img src="data:image/png;base64,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b3JnLzE5OTgvTWF0aC9NYXRoTUwiPjxtaSBtYXRodmFyaWFudD0ibm9ybWFsIj5hPC9taT48bW8+PTwvbW8+PG1mcmFjPjxtcm93Pjxtbz4mI3gyMjA2OzwvbW8+PG1pIG1hdGh2YXJpYW50PSJub3JtYWwiPlY8L21pPjwvbXJvdz48bXJvdz48bW8+JiN4MjIwNjs8L21vPjxtaSBtYXRodmFyaWFudD0ibm9ybWFsIj50PC9taT48L21yb3c+PC9tZnJhYz48bXNwYWNlIGxpbmVicmVhaz0ibmV3bGluZSIvPjxtaSBtYXRodmFyaWFudD0ibm9ybWFsIj5hPC9taT48bW8+PTwvbW8+PG1mcmFjPjxtcm93Pjxtc3ViPjxtaSBtYXRodmFyaWFudD0ibm9ybWFsIj5WPC9taT48bWkgbWF0aHZhcmlhbnQ9Im5vcm1hbCI+ZjwvbWk+PC9tc3ViPjxtbz4tPC9tbz48bXN1Yj48bWkgbWF0aHZhcmlhbnQ9Im5vcm1hbCI+VjwvbWk+PG1pIG1hdGh2YXJpYW50PSJub3JtYWwiPmk8L21pPjwvbXN1Yj48L21yb3c+PG1yb3c+PG1zdWI+PG1pIG1hdGh2YXJpYW50PSJub3JtYWwiPnQ8L21pPjxtaSBtYXRodmFyaWFudD0ibm9ybWFsIj5mPC9taT48L21zdWI+PG1vPi08L21vPjxtc3ViPjxtaSBtYXRodmFyaWFudD0ibm9ybWFsIj50PC9taT48bWkgbWF0aHZhcmlhbnQ9Im5vcm1hbCI+aTwvbWk+PC9tc3ViPjwvbXJvdz48L21mcmFjPjxtc3BhY2UgbGluZWJyZWFrPSJuZXdsaW5lIi8+PG1pIG1hdGh2YXJpYW50PSJub3JtYWwiPmE8L21pPjxtbz49PC9tbz48bWZyYWM+PG1yb3c+PG1uPjMwPC9tbj48bW8+JiN4QTA7PC9tbz48bW8+LTwvbW8+PG1vPiYjeEEwOzwvbW8+PG1uPjIwPC9tbj48L21yb3c+PG1uPjEwPC9tbj48L21mcmFjPjxtc3BhY2UgbGluZWJyZWFrPSJuZXdsaW5lIi8+PG1pIG1hdGh2YXJpYW50PSJub3JtYWwiPmE8L21pPjxtbz49PC9tbz48bWZyYWM+PG1uPjEwPC9tbj48bW4+MTA8L21uPjwvbWZyYWM+PG1vPj08L21vPjxtbj4xPC9tbj48bW8+JiN4QTA7PC9tbz48bWkgbWF0aHZhcmlhbnQ9Im5vcm1hbCI+bTwvbWk+PG1vPi88L21vPjxtc3VwPjxtaSBtYXRodmFyaWFudD0ibm9ybWFsIj5zPC9taT48bW4+MjwvbW4+PC9tc3VwPjxtc3BhY2UgbGluZWJyZWFrPSJuZXdsaW5lIi8+PC9tYXRoPlV3f74AAAAASUVORK5CYII=" alt=""><br><br>
+                    Assim, o módulo da força resultante é: <br><br>
+                    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAKMAAAAkCAYAAADl2YrgAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAABGJhU0UAAAARqpSybAAAA2RJREFUeNrtXEFrE0EUHkKQHIIgkoOINynioXgRDyJSkCAiPQgiUooUoQdP3ksP0j8gPQhBpIiIIKEHkd5KEfFQEBHxIIJHkSB4EAkhFOJ77Isu62z27W5mszt+H3yQvLzNTl6+nTdZ5osxfzESfie+Jm4TWwYAZoBR5PmyCBIAZi7GGnGAsgBlEWPf4XmuEN+K4LvEpsQXiPsSf0OcU7znohwzJH4mnsfX6ZcY28TdhPwkxh23StwjnpbYLeKmCDQcXxbBJuFp6JgV4kd8nX6I8RDxJvEL8Zyj83Rl5g2DZ8KOJX6Q8v1rMkMCFRdjmJcdnqeRMp53lgcq3KZbil/Sedr0NOJhrMta8SDh3EBF14zXiWsFnCevGDsy1gZmRn/FyHjmYN04bTH+RJv+P8R41AS3V5olEmO0DX8i3pbHx4kbxG/yGPBIjIxrxK0Si3Ge+E5+Qe/LTH6P2MNXCgAAAAAAAAAAAAAAAAAAAAAAAAAAAABAHIr2TbPRijfFvk/IO0t8boKtYmxNeEG8GMk5THxggo0SzI7ETMa8vGMuAlWqHxv7ViboLjHo2jf9xATGrEl7D1eleHOhYizJxRIGG8cWQ8+vGruZTJuXZ8xFoUr1G0leI6sYi/JNxxWT3X4aZyDv8t60xO+bwFiWNi/PmGfV0cpev5EIdz2PGPszLGZHKRJ2GrYt8QV5LW2eL2IsU/3GY9wxwYbt1GJ05ZvWFpN3cB9THP/DBPbaKDjWy5DnSozTqlcV6zce47zMpGoxuvZNa4s5kLXOtszQQ2k7S5G8Sb7qYYY8X2bGMtUvPMbHxJMaMRbhm9YWk+NsJ+B/majLsoH/toQtqXeURRpkyPNFjGWqX3iMJ0xg9FO3aZe+aW0x+VaEzVR1hvg19LwX0z4akfahzfOlTZepftExbsgtJ/Wa0ZVvWlvMHfPvX53Y2kI3ZhZvWxbgmjxfZsYy1S86RnabvkwjRmPc+Ka1xeRWcsMSP2WCG65jsHvxoSVvK/JrUpvnixjLVD/bGO/Ke6rF6MI3rS0mt4RXJvBE1yXGF8YH4qVI7p58uLoctybHmox5SW2zCmKcZf00Y6zJ7D1K86Gm7ZuetIaKoiVX4y9ZQPMHv2DJO0J8JAvpvtxja+bIixvPtNZ5vtcvjbb+vPYbQJSli2uak9sAAAF6dEVYdE1hdGhNTAA8bWF0aCB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMTk5OC9NYXRoL01hdGhNTCI+PG1pIG1hdGh2YXJpYW50PSJub3JtYWwiPlI8L21pPjxtbz49PC9tbz48bWkgbWF0aHZhcmlhbnQ9Im5vcm1hbCI+bTwvbWk+PG1vPi48L21vPjxtaSBtYXRodmFyaWFudD0ibm9ybWFsIj5hPC9taT48bXNwYWNlIGxpbmVicmVhaz0ibmV3bGluZSIvPjxtaSBtYXRodmFyaWFudD0ibm9ybWFsIj5SPC9taT48bW8+PTwvbW8+PG1uPjE2MDA8L21uPjxtbz4uPC9tbz48bW4+MTwvbW4+PG1vPiYjeEEwOzwvbW8+PG1vPj08L21vPjxtbz4mI3hBMDs8L21vPjxtbj4xNjAwPC9tbj48bW8+JiN4QTA7PC9tbz48bWkgbWF0aHZhcmlhbnQ9Im5vcm1hbCI+TjwvbWk+PC9tYXRoPgXaxXwAAAAASUVORK5CYII=" alt="">
+                </div>
+            </div>
+        </div>
+
+        <!-- Questão 2 -->
+        <div class="questão-card">
+            <div class="numero-questao">Questão 2</div>
+            <p class="enunciado">Um bloco de 10 kg está apoiado sobre uma superfície horizontal. Uma força vertical constante de 110 N é aplicada sobre ele por uma corda com a intenção de o suspender. Qual é a aceleração vertical do bloco? Adote g = 10 m/s².</p>
+            
+            <button class="btn-resposta" onclick="alternarResposta(this)">Ver resposta</button>
+            
+            <div class="resposta-container">
+                <div class="gabarito">Resposta: 1 m/s²</div>
+                <div class="resolucao">
+                    <strong>Resolução:</strong><br>
+                    Há duas forças aplicadas verticalmente sobre o bloco, a força de 110 N de direção vertical e sentido para cima, e a força peso, vertical e sentido para baixo. Pela segunda lei de Newton, temos: <br><br>
+                    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIMAAAAkCAYAAACqhIkwAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAABGJhU0UAAAARqpSybAAAAnhJREFUeNrtmzFIA0EQRZcgkiIIIlZ2FhYWtiJWNkFEgggWFiIiWNuLhdhYioUQRCxEbIKFvYiIRSCIhYUI1hIEEYsQQiDOciOe4dTb7F52Yv6DD8mYXPaG79xeMqPUFw3WC+madEYaVKAraTQ9X2JDAJhBpUhVpAVm+DRDxeM6ZkglNmSBlOH4FKnI8RvSiIPPzPExa6RH0iTM8J0s6cLw/X8p7nHWSJekUY4tk/bYIOH4EhvGlpPQMVdI9zBDQC9pkfREGve0jgJXpjC6EuQj4nXHn5/iCtH1Zghr2uM60obxpKtkV18mBlu4k3B5mXARN2GT9wp1w7V2zZ5hgbQhYB1JmyHP55pGZfg9Aace9g3tNsM7LhPxEjDAt2+ZDjbDX2X/gbTKj4dI26RnfgwzNDFPOvrHZhgj3fIdRJEr4RaprAAAAAAAAAAAAAAAAAAAAEDb0M2lutHjzsHr+kj7KvjxRyvPMR+EG2zeVPDTfFZwjkXk7lgFzagNB6/TzbS50PNZZdZg69oMn/SQJiLWJynHknJn3aKmO4f2IuK7Kmi2lXA+ulejpPzRKbmzNkPhhzI8xX+TcD6+5kJ85854RsTWDK8qaLlvRsfKQhI/Rzo33G/YNPpKyZ3xjIitGX6bZagJMEOWkzAssDK0M3exZkSSNEPV4Niu/iPDdxJ6n7Cj/E+YJ5k7p1sCWzOUfyh1aUGXCeXBlBJyZzwj4mIDGTWRlRW0gVRCK0OSuWtpRsTWDLqj+iAifiTo1lKqGZLMXUszIg0HSdbT0uv8JY8ue3o660r49yZS1tRq7pzOiMS9HsZ5XT/pkDc9FS5RGZgh0dxZzYh8AMmfIVl5OxUbAAAB1nRFWHRNYXRoTUwAPG1hdGggeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzE5OTgvTWF0aC9NYXRoTUwiPjxtaSBtYXRodmFyaWFudD0ibm9ybWFsIj5SPC9taT48bW8+JiN4QTA7PC9tbz48bW8+PTwvbW8+PG1vPiYjeEEwOzwvbW8+PG1pIG1hdGh2YXJpYW50PSJub3JtYWwiPm08L21pPjxtbz4mI3hBMDs8L21vPjxtbz4uPC9tbz48bW8+JiN4QTA7PC9tbz48bWkgbWF0aHZhcmlhbnQ9Im5vcm1hbCI+YTwvbWk+PG1zcGFjZSBsaW5lYnJlYWs9Im5ld2xpbmUiLz48bW4+MTEwPC9tbj48bW8+JiN4QTA7PC9tbz48bW8+LTwvbW8+PG1vPiYjeEEwOzwvbW8+PG1pIG1hdGh2YXJpYW50PSJub3JtYWwiPlA8L21pPjxtbz4mI3hBMDs8L21vPjxtbz49PC9tbz48bW8+JiN4QTA7PC9tbz48bW4+MTA8L21uPjxtbz4mI3hBMDs8L21vPjxtbz4uPC9tbz48bW8+JiN4QTA7PC9tbz48bWkgbWF0aHZhcmlhbnQ9Im5vcm1hbCI+YTwvbWk+PC9tYXRoPsajUNoAAAAASUVORK5CYII=" alt=""><br><br>
+                    Para determinar a força peso P, multiplicamos a massa pela aceleração da gravidade. <br><br>
+                    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEgAAAA8CAYAAADFXvyQAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAABGJhU0UAAAAdoyL+RwAAArlJREFUeNrtWjFIw0AUDSLSoQhFpDi4iIg4uDl0cOhSioiI4OAgUgTn7tLJxVE6CEWkiIhLpyLiIiLiIDiIuDo6FEHEoZQi1H/4Y8+apHe5yyXB/+AN/U3zri93l9y9WFYXHY7vwFNgziL8MsjGIDADvAQukTV/DbIxArwna9wNGgA2A9BYQONbwBowifUs8A7rt8ApgXNmuHM9Awsu/yUQg5aBdZdj+9FNYwt4BZzB2gawjKbx9XWB3juNpszj5wngiSmD2AT9hKI6NWrYM3mwq19xqH/2OV8VDRe52Foab9/B2JXbBY4GoJGQrHvhFZgyaZCsmX6GmI666u8CN0i3ht8/2nQYlmQQhwu8i/FI/WeDeocvu/PdANPYk/LcYwIZhNgEvgDbaM4c8IMea92RxiUSAVHHXsMwhp8LZEsXq8BHbqlRJEsIBAKBQCAQCEZhMhdjm/El4IPHMcPAfVyAMlawFpqGyVzs2PreS/baQejVXpRchGrXCCMX63isr8oO9T3gWlgaJnIx0cbXXIZ3Fr8LRcNELiba+DfgkEOd1RqaDJLWMJGLiTbeKw9rh6VhIhfT0fhWWBomcjFRzYZL909oHGLSGiY27WUm0LxDPad5kpbSiJJBK8ADh3pV421eWiNKBjGwNz2K+NDKhsI28NpjuAepYdwgkTmLJaSHOGE2cRmQlDBIpwaBQCAQCAQCgUAgEEJCXHMxv/kZW5wWZBbucc3F/OZnHTwu4ccgG1HPxVTysw6aWVIxKOq5mEp+ZmufY0fwZVDUczGV/MzWnsUeJ21QHHIxlfyM1z4CTooYFLdcTCU/47XH8a4tPcREHgnCzMVU8rNe7R2r+8a+skEmJmmRzEolP+vVZpv1Z3ExSDSzUsnPnLSLeM7IG8QgmllJZVsCjzXnUTBIZ2blN9vy6r0/330Bba6EcShRCh0AAAGWdEVYdE1hdGhNTAA8bWF0aCB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMTk5OC9NYXRoL01hdGhNTCI+PG1pIG1hdGh2YXJpYW50PSJub3JtYWwiPlA8L21pPjxtbz49PC9tbz48bWkgbWF0aHZhcmlhbnQ9Im5vcm1hbCI+bTwvbWk+PG1vPi48L21vPjxtaSBtYXRodmFyaWFudD0ibm9ybWFsIj5nPC9taT48bXNwYWNlIGxpbmVicmVhaz0ibmV3bGluZSIvPjxtaSBtYXRodmFyaWFudD0ibm9ybWFsIj5QPC9taT48bW8+PTwvbW8+PG1uPjEwPC9tbj48bW8+LjwvbW8+PG1uPjEwPC9tbj48bXNwYWNlIGxpbmVicmVhaz0ibmV3bGluZSIvPjxtaSBtYXRodmFyaWFudD0ibm9ybWFsIj5QPC9taT48bW8+PTwvbW8+PG1uPjEwMDwvbW4+PG1vPiYjeEEwOzwvbW8+PG1pIG1hdGh2YXJpYW50PSJub3JtYWwiPk48L21pPjwvbWF0aD6S/Tm6AAAAAElFTkSuQmCC" alt=""><br><br>
+                    Substituindo na equação anterior e resolvendo para a: <br><br>
+                    <img src="data:image/png;base64,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I3hBMDs8L21vPjxtbz4tPC9tbz48bW8+JiN4QTA7PC9tbz48bW4+MTAwPC9tbj48bW8+JiN4QTA7PC9tbz48bW8+PTwvbW8+PG1vPiYjeEEwOzwvbW8+PG1uPjEwPC9tbj48bW8+JiN4QTA7PC9tbz48bW8+LjwvbW8+PG1vPiYjeEEwOzwvbW8+PG1pIG1hdGh2YXJpYW50PSJub3JtYWwiPmE8L21pPjxtc3BhY2UgbGluZWJyZWFrPSJuZXdsaW5lIi8+PG1uPjEwPC9tbj48bW8+JiN4QTA7PC9tbz48bW8+PTwvbW8+PG1vPiYjeEEwOzwvbW8+PG1uPjEwPC9tbj48bWkgbWF0aHZhcmlhbnQ9Im5vcm1hbCI+YTwvbWk+PG1zcGFjZSBsaW5lYnJlYWs9Im5ld2xpbmUiLz48bWZyYWM+PG1uPjEwPC9tbj48bW4+MTA8L21uPjwvbWZyYWM+PG1vPj08L21vPjxtaSBtYXRodmFyaWFudD0ibm9ybWFsIj5hPC9taT48bXNwYWNlIGxpbmVicmVhaz0ibmV3bGluZSIvPjxtbj4xPC9tbj48bW8+JiN4QTA7PC9tbz48bWkgbWF0aHZhcmlhbnQ9Im5vcm1hbCI+bTwvbWk+PG1vPi88L21vPjxtc3VwPjxtaSBtYXRodmFyaWFudD0ibm9ybWFsIj5zPC9taT48bW4+MjwvbW4+PC9tc3VwPjxtbz49PC9tbz48bWkgbWF0aHZhcmlhbnQ9Im5vcm1hbCI+YTwvbWk+PC9tYXRoPqBfNcoAAAAASUVORK5CYII=" alt="">
+                </div>
+            </div>
+        </div>
+
+        <!-- Questão 3 -->
+        <div class="questão-card">
+            <div class="numero-questao">Questão 3</div>
+            <p class="enunciado">Um ônibus com passageiros viaja em trajetória retilínea. Ao se deparar com uma vaca que cruza repentinamente a estrada, o motorista freia bruscamente e as pessoas são "lançadas para frente". O que acontece é que as pessoas continuam em movimento em relação ao ônibus, agora parado. Este fenômeno acontece porque
+                <ul class="enunciado-list">
+                    <li> a) elas têm uma força resultante não nula que as impulsiona para frente.</li><br>
+                    <li> b) elas têm uma força de inércia que as mantém em movimento retilíneo uniforme.</li><br>
+                    <li> c)elas têm uma força de atrito com o ar que as empurra para frente.</li><br>
+                    <li> d) elas têm uma força de reação do ônibus que as lança para frente.</li><br>
+                    <li> e) elas têm uma tendência natural de resistir à mudança do seu estado de movimento devido à inércia.</li><br>
+                </ul>
+            </p>
+            
+            <button class="btn-resposta" onclick="alternarResposta(this)">Ver resposta</button>
+            
+            <div class="resposta-container">
+                <div class="gabarito">Resposta: 1 m/s²</div>
+                <div class="resolucao">
+                    <strong>Resolução:</strong><br>
+                    Há duas forças aplicadas verticalmente sobre o bloco, a força de 110 N de direção vertical e sentido para cima, e a força peso, vertical e sentido para baixo. Pela segunda lei de Newton, temos: <br><br>
+                    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIMAAAAkCAYAAACqhIkwAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAABGJhU0UAAAARqpSybAAAAnhJREFUeNrtmzFIA0EQRZcgkiIIIlZ2FhYWtiJWNkFEgggWFiIiWNuLhdhYioUQRCxEbIKFvYiIRSCIhYUI1hIEEYsQQiDOciOe4dTb7F52Yv6DD8mYXPaG79xeMqPUFw3WC+madEYaVKAraTQ9X2JDAJhBpUhVpAVm+DRDxeM6ZkglNmSBlOH4FKnI8RvSiIPPzPExa6RH0iTM8J0s6cLw/X8p7nHWSJekUY4tk/bYIOH4EhvGlpPQMVdI9zBDQC9pkfREGve0jgJXpjC6EuQj4nXHn5/iCtH1Zghr2uM60obxpKtkV18mBlu4k3B5mXARN2GT9wp1w7V2zZ5hgbQhYB1JmyHP55pGZfg9Aace9g3tNsM7LhPxEjDAt2+ZDjbDX2X/gbTKj4dI26RnfgwzNDFPOvrHZhgj3fIdRJEr4RaprAAAAAAAAAAAAAAAAAAAAEDb0M2lutHjzsHr+kj7KvjxRyvPMR+EG2zeVPDTfFZwjkXk7lgFzagNB6/TzbS50PNZZdZg69oMn/SQJiLWJynHknJn3aKmO4f2IuK7Kmi2lXA+ulejpPzRKbmzNkPhhzI8xX+TcD6+5kJ85854RsTWDK8qaLlvRsfKQhI/Rzo33G/YNPpKyZ3xjIitGX6bZagJMEOWkzAssDK0M3exZkSSNEPV4Niu/iPDdxJ6n7Cj/E+YJ5k7p1sCWzOUfyh1aUGXCeXBlBJyZzwj4mIDGTWRlRW0gVRCK0OSuWtpRsTWDLqj+iAifiTo1lKqGZLMXUszIg0HSdbT0uv8JY8ue3o660r49yZS1tRq7pzOiMS9HsZ5XT/pkDc9FS5RGZgh0dxZzYh8AMmfIVl5OxUbAAAB1nRFWHRNYXRoTUwAPG1hdGggeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzE5OTgvTWF0aC9NYXRoTUwiPjxtaSBtYXRodmFyaWFudD0ibm9ybWFsIj5SPC9taT48bW8+JiN4QTA7PC9tbz48bW8+PTwvbW8+PG1vPiYjeEEwOzwvbW8+PG1pIG1hdGh2YXJpYW50PSJub3JtYWwiPm08L21pPjxtbz4mI3hBMDs8L21vPjxtbz4uPC9tbz48bW8+JiN4QTA7PC9tbz48bWkgbWF0aHZhcmlhbnQ9Im5vcm1hbCI+YTwvbWk+PG1zcGFjZSBsaW5lYnJlYWs9Im5ld2xpbmUiLz48bW4+MTEwPC9tbj48bW8+JiN4QTA7PC9tbz48bW8+LTwvbW8+PG1vPiYjeEEwOzwvbW8+PG1pIG1hdGh2YXJpYW50PSJub3JtYWwiPlA8L21pPjxtbz4mI3hBMDs8L21vPjxtbz49PC9tbz48bW8+JiN4QTA7PC9tbz48bW4+MTA8L21uPjxtbz4mI3hBMDs8L21vPjxtbz4uPC9tbz48bW8+JiN4QTA7PC9tbz48bWkgbWF0aHZhcmlhbnQ9Im5vcm1hbCI+YTwvbWk+PC9tYXRoPsajUNoAAAAASUVORK5CYII=" alt=""><br><br>
+                    Para determinar a força peso P, multiplicamos a massa pela aceleração da gravidade. <br><br>
+                    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEgAAAA8CAYAAADFXvyQAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAABGJhU0UAAAAdoyL+RwAAArlJREFUeNrtWjFIw0AUDSLSoQhFpDi4iIg4uDl0cOhSioiI4OAgUgTn7tLJxVE6CEWkiIhLpyLiIiLiIDiIuDo6FEHEoZQi1H/4Y8+apHe5yyXB/+AN/U3zri93l9y9WFYXHY7vwFNgziL8MsjGIDADvAQukTV/DbIxArwna9wNGgA2A9BYQONbwBowifUs8A7rt8ApgXNmuHM9Awsu/yUQg5aBdZdj+9FNYwt4BZzB2gawjKbx9XWB3juNpszj5wngiSmD2AT9hKI6NWrYM3mwq19xqH/2OV8VDRe52Foab9/B2JXbBY4GoJGQrHvhFZgyaZCsmX6GmI666u8CN0i3ht8/2nQYlmQQhwu8i/FI/WeDeocvu/PdANPYk/LcYwIZhNgEvgDbaM4c8IMea92RxiUSAVHHXsMwhp8LZEsXq8BHbqlRJEsIBAKBQCAQCEZhMhdjm/El4IPHMcPAfVyAMlawFpqGyVzs2PreS/baQejVXpRchGrXCCMX63isr8oO9T3gWlgaJnIx0cbXXIZ3Fr8LRcNELiba+DfgkEOd1RqaDJLWMJGLiTbeKw9rh6VhIhfT0fhWWBomcjFRzYZL909oHGLSGiY27WUm0LxDPad5kpbSiJJBK8ADh3pV421eWiNKBjGwNz2K+NDKhsI28NpjuAepYdwgkTmLJaSHOGE2cRmQlDBIpwaBQCAQCAQCgUAgEEJCXHMxv/kZW5wWZBbucc3F/OZnHTwu4ccgG1HPxVTysw6aWVIxKOq5mEp+ZmufY0fwZVDUczGV/MzWnsUeJ21QHHIxlfyM1z4CTooYFLdcTCU/47XH8a4tPcREHgnCzMVU8rNe7R2r+8a+skEmJmmRzEolP+vVZpv1Z3ExSDSzUsnPnLSLeM7IG8QgmllJZVsCjzXnUTBIZ2blN9vy6r0/330Bba6EcShRCh0AAAGWdEVYdE1hdGhNTAA8bWF0aCB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMTk5OC9NYXRoL01hdGhNTCI+PG1pIG1hdGh2YXJpYW50PSJub3JtYWwiPlA8L21pPjxtbz49PC9tbz48bWkgbWF0aHZhcmlhbnQ9Im5vcm1hbCI+bTwvbWk+PG1vPi48L21vPjxtaSBtYXRodmFyaWFudD0ibm9ybWFsIj5nPC9taT48bXNwYWNlIGxpbmVicmVhaz0ibmV3bGluZSIvPjxtaSBtYXRodmFyaWFudD0ibm9ybWFsIj5QPC9taT48bW8+PTwvbW8+PG1uPjEwPC9tbj48bW8+LjwvbW8+PG1uPjEwPC9tbj48bXNwYWNlIGxpbmVicmVhaz0ibmV3bGluZSIvPjxtaSBtYXRodmFyaWFudD0ibm9ybWFsIj5QPC9taT48bW8+PTwvbW8+PG1uPjEwMDwvbW4+PG1vPiYjeEEwOzwvbW8+PG1pIG1hdGh2YXJpYW50PSJub3JtYWwiPk48L21pPjwvbWF0aD6S/Tm6AAAAAElFTkSuQmCC" alt=""><br><br>
+                    Substituindo na equação anterior e resolvendo para a: <br><br>
+                    <img src="data:image/png;base64,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I3hBMDs8L21vPjxtbz4tPC9tbz48bW8+JiN4QTA7PC9tbz48bW4+MTAwPC9tbj48bW8+JiN4QTA7PC9tbz48bW8+PTwvbW8+PG1vPiYjeEEwOzwvbW8+PG1uPjEwPC9tbj48bW8+JiN4QTA7PC9tbz48bW8+LjwvbW8+PG1vPiYjeEEwOzwvbW8+PG1pIG1hdGh2YXJpYW50PSJub3JtYWwiPmE8L21pPjxtc3BhY2UgbGluZWJyZWFrPSJuZXdsaW5lIi8+PG1uPjEwPC9tbj48bW8+JiN4QTA7PC9tbz48bW8+PTwvbW8+PG1vPiYjeEEwOzwvbW8+PG1uPjEwPC9tbj48bWkgbWF0aHZhcmlhbnQ9Im5vcm1hbCI+YTwvbWk+PG1zcGFjZSBsaW5lYnJlYWs9Im5ld2xpbmUiLz48bWZyYWM+PG1uPjEwPC9tbj48bW4+MTA8L21uPjwvbWZyYWM+PG1vPj08L21vPjxtaSBtYXRodmFyaWFudD0ibm9ybWFsIj5hPC9taT48bXNwYWNlIGxpbmVicmVhaz0ibmV3bGluZSIvPjxtbj4xPC9tbj48bW8+JiN4QTA7PC9tbz48bWkgbWF0aHZhcmlhbnQ9Im5vcm1hbCI+bTwvbWk+PG1vPi88L21vPjxtc3VwPjxtaSBtYXRodmFyaWFudD0ibm9ybWFsIj5zPC9taT48bW4+MjwvbW4+PC9tc3VwPjxtbz49PC9tbz48bWkgbWF0aHZhcmlhbnQ9Im5vcm1hbCI+YTwvbWk+PC9tYXRoPqBfNcoAAAAASUVORK5CYII=" alt="">
+                </div>
+            </div>
+        </div>
+
+        <!-- Questão 4 -->
+        <div class="questão-card">
+            <div class="numero-questao">Questão 4</div>
+            <p class="enunciado">
+              Relacione as três leis de Newton com os respectivos enunciados. <br><br>
+              <ul class="list-qst4">
+                <li>1ª lei de Newton</li>
+                <li>2ª lei de Newton</li>
+                <li>3ª lei de Newton</li>
+              </ul><br><br>
+              (  ) Determina que a força resultante é igual ao produto da massa pela aceleração do corpo. <br><br>
+              (  ) Enuncia que a toda ação existe uma reação de mesma intensidade, mesma direção e sentido oposto. <br><br>
+              (  ) Indica que um corpo tende a permanecer em seu estado de repouso ou em movimento retilíneo uniforme, a menos que uma força resultante passe a atuar sobre ele. <br><br>
+            </p>
+            
+            <button class="btn-resposta" onclick="alternarResposta(this)">Ver resposta</button>
+            
+            <div class="resposta-container">
+                <div class="gabarito">Resposta: (2); (3) e (1).</div>
+                <div class="resolucao">
+                    <strong>Resolução:</strong><br>
+                    <strong>Lei da inércia </strong> (1ª lei de Newton): indica que um corpo tende a permanecer em seu estado de repouso ou em movimento retilíneo uniforme, a menos que uma força resultante passe a atuar sobre ele. <br><br>
+                    <strong>Lei fundamental da dinâmica</strong> (2ª lei de Newton): determina que a força resultante é igual ao produto da massa pela aceleração do corpo. <br><br>
+                    <strong>Lei da ação e reação</strong> (3ª lei de Newton): enuncia que a toda ação existe uma reação de mesma intensidade, mesma direção e sentido oposto.
+                </div>
+            </div>
+        </div>
+
+        <!-- Questão 5 -->
+        <div class="questão-card">
+            <div class="numero-questao">Questão 5</div>
+            <p class="enunciado">
+              (UFRGS - 2017) Aplica-se uma força de 20 N a um corpo de massa m. O corpo desloca-se em linha reta com velocidade que aumenta 10 m/s a cada 2 s. Qual o valor, em kg, da massa m? <br><br>
+              <ul>
+                <li>a) 5.</li>
+                <li>b) 4.</li>
+                <li>c) 3.</li>
+                <li>d) 2.</li>
+                <li>e) 1.</li>
+              </ul><br>
+            </p>
+            
+            <button class="btn-resposta" onclick="alternarResposta(this)">Ver resposta</button>
+            
+            <div class="resposta-container">
+                <div class="gabarito">Resposta: b) 4.</div>
+                <div class="resolucao">
+                    <strong>Resolução:</strong><br><br>
+                    Para encontrar o valor da massa, vamos aplicar a segunda lei de Newton. Para isso, precisamos primeiro calcular o valor da aceleração. <br><br>
+                    Como a aceleração é igual ao valor da variação da velocidade dividido pelo intervalo de tempo, temos: <br><br>
+                    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAH4AAAAjCAYAAABSM76hAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAABGJhU0UAAAAXQ/cXWQAAAx1JREFUeNrtW09kHGEU/4xVFVVWrdhDhYiK6qFUVORQpVZERYSoFb3m0FP1UlVR1XtVD6UioiqXVdXD6q1iVQ+hqnqoChU9REVZtSpWhel75jc1xjczO9/M2J2Z9+PH7tv5881733vfe++bVWp0cI64Tvwccsxp4jPiLvgcMkGO8ZK4RrRDjnlHXPR8vw6ZoAAIMvwK8alG/oTYFLUV1/CviA2N/Cp+ExTU8F3iCY2cZYeituIa/jjknL+itnIavi9qK67hDwNC/UkJ9aG6tBERPxCn8prczWvkDUnuImERbxE/5dHwy8QNjXyrBOXcRXhsUvTzaHjGDvE2sYKwf5/YKYHH8oRfTXiNK6OqK1tDP6rETczcI+W0bE8NaWx2xCRNCzXiPsK1KeqIGJOy6qUXhbIGR7X1BOfzHkgbxhfkxPAWvL2WwNPfqoiNLL7JQ5RGnP7zLtmE2Dy24R8Q7xLHlbO3wPr8SVzwLFePldOJ7BHvhVyriaUtKiL8QJ/Dxr1dsNGnowbcxkCrmAQt4pLhumer4YbHtMcc51laMP5HGK4CB9qHB3KCdQPys8hXxgOu9Z54KcLoGwH9jYHypiYG7MULzywVj3eiYA9edCckqdxTzlZx1Sc/gJF08rphCce/X0vyYFwmzfpknQxDvZ0xs0IFHsjJ1jdNGLVQbYzFlJuWcCtoyiyaPtCRr1zgz38yCpt5DPU6NDR18WU4kUooj1PC1bEk7JiUtr983+fUiLf3RgR9zZK5FZCkxZHHLeF4v+IL8WbcBzjAyS74ptL/DscF4nefjJPjNc2xceSmJdymMujuPVJOF8zCur6NJEbg4DVyIAuch9GXNcctBJw/qHyQEs6PGeJX4hnTDlEL3u5udS6Jzf8nUXuolbvQ04zmuK4vcprIo0o4F7+RkxxjfZ9O62FrQ1T0HJaanqeZtCrzr/joIOS5Wep51KzyNm0JMYHMVSDlk6AMmFXpvIUiyBE4891F0icoCXhT443S/4tGUFBMwuhToorygBsSvEM1JqooD/jFBO6OVUQV5UJbpdiCFOQHedrjzyX+AYE6+1D/gJTGAAAAwHRFWHRNYXRoTUwAPG1hdGggeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzE5OTgvTWF0aC9NYXRoTUwiPjxtaT5hPC9taT48bW8+PTwvbW8+PG1mcmFjPjxtbj4xMDwvbW4+PG1uPjI8L21uPjwvbWZyYWM+PG1vPj08L21vPjxtbj41PC9tbj48bWk+bTwvbWk+PG1vPi88L21vPjxtc3VwPjxtaT5zPC9taT48bW4+MjwvbW4+PC9tc3VwPjwvbWF0aD6QCIbjAAAAAElFTkSuQmCC" alt=""><br><br>
+                    Substituindo os valores encontrados: <br><br>
+                    <img src="data:image/png;base64,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" alt=""><br><br>
+                    Portanto, a massa do corpo é 4 kg.
+                </div>
+            </div>
+        </div>
+
+        <!-- Questão 6 -->
+        <div class="questão-card">
+            <div class="numero-questao">Questão 6</div>
+            <p class="enunciado">
+              (UERJ - 2013) Um bloco de madeira encontra-se em equilíbrio sobre um plano inclinado de 45º em relação ao solo. A intensidade da força que o bloco exerce perpendicularmente ao plano inclinado é igual a 2,0 N. <br><br>
+              Entre o bloco e o plano inclinado, a intensidade da força de atrito, em newtons, é igual a: <br><br>
+
+              <ul>
+                <li>a) 0,7</li>
+                <li>b) 1,0</li>
+                <li>b) 1,4</li>
+                <li>d) 2,0</li>
+              </ul><br>
+            </p>
+            
+            <button class="btn-resposta" onclick="alternarResposta(this)">Ver resposta</button>
+            
+            <div class="resposta-container">
+                <div class="gabarito">Resposta: d) 2,0.</div>
+                <div class="resolucao">
+                    <strong>Resolução:</strong><br><br>
+                    No esquema abaixo representamos a situação proposta no problema e as forças que atuam no bloco: <br><br>
+                    <img class="img-qst6" src="https://static.todamateria.com.br/upload/ne/wt/newtonuerj2013a.jpg" alt=""><br><br>
+                    Como o bloco encontra-se em equilíbrio sobre o plano inclinado, a força resultante tanto no eixo x quanto no eixo y, é igual a zero. <br><br>
+                    Desta forma, temos as seguintes igualdades: <br><br>
+                    f<sub>atrito</sub> = P. sen 45º <br>
+                    N = P. cos 45º <br><br>
+                    Sendo N igual a 2 N e o sen 45º igual ao cos 45º, então: <br><br>
+                    f<sub>atrito</sub> = N = 2 newtons <br><br>
+                    Portanto, entre o bloco e o plano inclinado, a intensidade da força de atrito é igual a 2,0 N. <br>
+                </div>
+            </div>
+        </div>
+
+        <!-- Questão 7 -->
+        <div class="questão-card">
+            <div class="numero-questao">Questões adicionais</div>
+            <p class="enunciado">Entrem e realizem o download ou salvem o link para realizarem durante a semana, bons estudos pessoal!!<br>
+                <br>
+                   <a href="https://www.caesp.com.br/libwww/colegios/uploads/uploadsMateriais/11042021211334Lista%20de%20Exercicios%20-%20Leis%20de%20Newton.pdf" target="_blank"><h2>👉 Atividades 👈</h2></a>
+            </p>
+            <br>
+        </div>
+    </div>
+    </main>
+
+    <!-- RODAPÉ (FOOTER) -->
+    <footer>
+        <div class="footer-container">
+            <div class="copyright">&copy; 2026 Todos os direitos reservados.</div>
+            <div class="signature">Carlos Eduardo S. do Nascimento</div>
+        </div>
+    </footer>
+
+    <!-- Lógica JavaScript de Alternância da Sidebar -->
+    <script>
+        function toggleSidebar(open) {
+            const sidebar = document.getElementById('sidebarMenu');
+            const overlay = document.getElementById('sidebarOverlay');
+            
+            if (open) {
+                sidebar.classList.add('active');
+                overlay.classList.add('active');
+            } else {
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+            }
+        }
+
+        function alternarResposta(botao) {
+            // Encontra o container de resposta que está logo após o botão clicado
+            const respostaContainer = botao.nextElementSibling;
+            
+            // Verifica se a resposta está visível
+            if (respostaContainer.style.display === "block") {
+                respostaContainer.style.display = "none";
+                botao.textContent = "Ver resposta";
+                botao.style.backgroundColor = ""; // Volta para a cor padrão do CSS
+            } else {
+                respostaContainer.style.display = "block";
+                botao.textContent = "Mostrar menos";
+                botao.style.backgroundColor = "#64748b"; // Muda a cor para indicar que pode fechar
+            }
+        }
+    </script>
+</body>
+</html>
